@@ -1,5 +1,6 @@
-import { motion, useScroll, useSpring, useMotionValue } from "framer-motion";
+import { motion, useSpring, useMotionValue } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
+import { Suspense } from "react";
 import ThreeScene from "../components/ThreeScene";
 import InteractiveShape from "../components/InteractiveShape";
 import ProjectItem from "../components/ProjectItem";
@@ -29,7 +30,6 @@ const skills = [
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
   
-  // Custom cursor / floating image logic
   const [activeProject, setActiveProject] = useState<number | null>(null);
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -52,7 +52,7 @@ export default function Home() {
       
       {/* Floating Project Image */}
       <motion.div 
-        className="fixed top-0 left-0 w-[300px] h-[400px] pointer-events-none z-50 hidden md:block overflow-hidden"
+        className="fixed top-0 left-0 w-[300px] h-[400px] pointer-events-none z-50 hidden md:block overflow-hidden shadow-lg"
         style={{ 
           x: springX, 
           y: springY,
@@ -89,7 +89,9 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="relative h-screen w-full flex flex-col justify-center px-6 md:px-12 overflow-hidden">
-        <ThreeScene />
+        <Suspense fallback={null}>
+          <ThreeScene />
+        </Suspense>
         
         <div className="z-10 mt-20">
           <motion.h1 
@@ -158,7 +160,7 @@ export default function Home() {
                <div 
                  key={i} 
                  onMouseEnter={() => setActiveProject(i)}
-                 className="relative bg-background/50 backdrop-blur-[2px]" // ensure text is readable over image if it overlaps slightly
+                 className="relative bg-background/50 backdrop-blur-[2px]"
                >
                  <ProjectItem {...project} index={i} />
                </div>
@@ -178,7 +180,9 @@ export default function Home() {
             </p>
           </div>
           <div className="h-[500px] w-full bg-white rounded-none border border-border">
-            <InteractiveShape />
+            <Suspense fallback={<div className="w-full h-full bg-gradient-to-br from-white via-gray-50 to-gray-100" />}>
+              <InteractiveShape />
+            </Suspense>
           </div>
         </div>
       </section>
