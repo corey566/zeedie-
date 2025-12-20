@@ -1,12 +1,25 @@
 import { motion } from 'framer-motion';
 import { ArrowLeft, Clock, Tag, Share2 } from 'lucide-react';
 import { Link, useRoute } from 'wouter';
-import { blogs } from '@/lib/data';
+import { useQuery } from '@tanstack/react-query';
+import { fetchBlogPost } from '@/lib/api';
 import NotFound from './not-found';
 
 export default function BlogPost() {
   const [match, params] = useRoute('/blog/:id');
-  const post = blogs.find(b => b.id === params?.id);
+  const { data: post, isLoading } = useQuery({ 
+    queryKey: ['blog-post', params?.id], 
+    queryFn: () => fetchBlogPost(params?.id || ''),
+    enabled: !!params?.id 
+  });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#f2f2f2] flex items-center justify-center">
+        <div className="text-xl">Loading...</div>
+      </div>
+    );
+  }
 
   if (!post) return <NotFound />;
 
@@ -26,7 +39,7 @@ export default function BlogPost() {
         <div className="bg-white p-8 md:p-16 rounded-[2.5rem] shadow-sm">
           <header className="mb-12 border-b border-black/10 pb-12">
             <div className="flex flex-wrap gap-3 mb-6">
-              {post.tags.map(tag => (
+              {post.tags?.map((tag: string) => (
                 <span key={tag} className="px-3 py-1 bg-black/5 rounded-full text-sm font-medium text-black/60">
                   {tag}
                 </span>
@@ -34,7 +47,10 @@ export default function BlogPost() {
             </div>
             <h1 className="font-display text-4xl md:text-6xl leading-[1.1] mb-6">{post.title}</h1>
             <div className="flex items-center justify-between text-black/40">
-              <span className="flex items-center gap-2"><Clock className="w-4 h-4" /> {post.date}</span>
+              <span className="flex items-center gap-2">
+                <Clock className="w-4 h-4" /> 
+                {new Date(post.publishedDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+              </span>
               <button className="flex items-center gap-2 hover:text-black transition-colors">
                 <Share2 className="w-4 h-4" /> Share
               </button>

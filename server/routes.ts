@@ -390,5 +390,37 @@ export async function registerRoutes(
     }
   });
 
+  // GitHub sync route
+  app.post("/api/github-sync", async (_req, res) => {
+    try {
+      const { getGitHubUsername, getGitHubContributions } = await import("./github");
+      const username = await getGitHubUsername();
+      
+      if (!username) {
+        res.status(400).json({ error: "GitHub not connected or username not available" });
+        return;
+      }
+
+      const contributions = await getGitHubContributions(username);
+      
+      if (!contributions) {
+        res.status(500).json({ error: "Failed to fetch contributions from GitHub" });
+        return;
+      }
+
+      // Clear existing contributions and insert new ones
+      await storage.clearGithubContributions();
+      
+      for (const contribution of contributions) {
+        await storage.createGithubContribution(contribution);
+      }
+
+      res.json({ success: true, count: contributions.length });
+    } catch (error) {
+      console.error('GitHub sync error:', error);
+      res.status(500).json({ error: "Failed to sync GitHub contributions" });
+    }
+  });
+
   return httpServer;
 }

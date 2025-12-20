@@ -3,7 +3,15 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowUpRight, Globe, Github, Linkedin, ArrowRight } from 'lucide-react';
 import { Link } from 'wouter';
 import videoSrc from '@assets/generated_videos/slow_motion_abstract_liquid_grayscale.mp4';
-import { projects, blogs, experience, linkedinPosts } from '@/lib/data';
+import { useQuery } from '@tanstack/react-query';
+import { 
+  fetchProfile, 
+  fetchFeaturedProjects, 
+  fetchBlogPosts, 
+  fetchExperience, 
+  fetchLinkedinPosts,
+  fetchGithubContributions
+} from '@/lib/api';
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -14,25 +22,45 @@ export default function Home() {
 
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
 
-  // Custom GitHub Calendar Mock
+  // Fetch data from backend
+  const { data: profile } = useQuery({ queryKey: ['profile'], queryFn: fetchProfile });
+  const { data: projects = [] } = useQuery({ queryKey: ['featured-projects'], queryFn: fetchFeaturedProjects });
+  const { data: blogs = [] } = useQuery({ queryKey: ['blog-posts'], queryFn: fetchBlogPosts });
+  const { data: experience = [] } = useQuery({ queryKey: ['experience'], queryFn: fetchExperience });
+  const { data: linkedinPosts = [] } = useQuery({ queryKey: ['linkedin-posts'], queryFn: fetchLinkedinPosts });
+  const { data: githubData = [] } = useQuery({ queryKey: ['github-contributions'], queryFn: fetchGithubContributions });
+
+  // GitHub Contribution Graph Component
   const ContributionGraph = () => {
-    const weeks = 52;
-    const days = 7;
+    if (!githubData.length) {
+      return <div className="text-black/40">No contribution data available</div>;
+    }
+
+    // Group by weeks
+    const weeks: any[] = [];
+    let currentWeek: any[] = [];
+    
+    githubData.forEach((day: any, index: number) => {
+      currentWeek.push(day);
+      if ((index + 1) % 7 === 0 || index === githubData.length - 1) {
+        weeks.push([...currentWeek]);
+        currentWeek = [];
+      }
+    });
+
+    const colors = ['bg-gray-100', 'bg-green-200', 'bg-green-300', 'bg-green-400', 'bg-green-500'];
+
     return (
       <div className="flex gap-1 overflow-x-auto pb-2">
-        {Array.from({ length: weeks }).map((_, w) => (
+        {weeks.map((week, w) => (
           <div key={w} className="flex flex-col gap-1">
-            {Array.from({ length: days }).map((_, d) => {
-              const level = Math.random() > 0.7 ? Math.floor(Math.random() * 4) + 1 : 0;
-              const colors = ['bg-gray-100', 'bg-green-200', 'bg-green-300', 'bg-green-400', 'bg-green-500'];
-              return (
-                <div 
-                  key={d} 
-                  className={`w-3 h-3 rounded-sm ${colors[level]}`} 
-                  title={`Contribution level: ${level}`}
-                />
-              );
-            })}
+            {week.map((day: any, d: number) => (
+              <div 
+                key={d} 
+                className={`w-3 h-3 rounded-sm ${colors[day.level] || colors[0]}`} 
+                title={`${day.date}: ${day.count} contributions`}
+              />
+            ))}
           </div>
         ))}
       </div>
@@ -101,7 +129,7 @@ export default function Home() {
                   Full Stack Developer
                 </span>
                 <h2 className="font-display text-3xl md:text-5xl font-black uppercase tracking-tight">
-                  ZEEDIE
+                  {profile?.name || "ZEEDIE"}
                 </h2>
               </div>
 
@@ -162,11 +190,11 @@ export default function Home() {
           {/* Stats / Quick Info */}
           <div className="md:col-span-4 bg-[#1a1a1a] text-white p-10 rounded-[2.5rem] shadow-sm flex flex-col justify-center gap-8">
               <div className="flex items-center gap-4">
-                 <h4 className="text-6xl font-display">5+</h4>
+                 <h4 className="text-6xl font-display">{profile?.yearsExperience || 5}+</h4>
                  <span className="text-white/60 leading-tight">Years of<br/>Experience</span>
               </div>
                <div className="flex items-center gap-4">
-                 <h4 className="text-6xl font-display">50+</h4>
+                 <h4 className="text-6xl font-display">{profile?.projectsShipped || 50}+</h4>
                  <span className="text-white/60 leading-tight">Projects<br/>Shipped</span>
               </div>
           </div>
@@ -194,12 +222,12 @@ export default function Home() {
                 <a href="https://linkedin.com" target="_blank" className="text-[#0077b5] font-medium hover:underline">View Profile</a>
              </div>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {linkedinPosts.map((post) => (
+                {linkedinPosts.slice(0, 2).map((post: any) => (
                   <div key={post.id} className="bg-white p-6 rounded-2xl shadow-sm border border-black/5">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white font-bold text-xs">ZD</div>
                       <div>
-                        <p className="font-bold text-sm">ZEEDIE</p>
+                        <p className="font-bold text-sm">{profile?.name || "ZEEDIE"}</p>
                         <p className="text-xs text-gray-500">{post.date}</p>
                       </div>
                     </div>
@@ -226,13 +254,13 @@ export default function Home() {
              </div>
 
              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {experience.map((job, i) => (
-                  <div key={i} className="group border-t border-black/10 pt-8 hover:bg-black/5 rounded-xl p-4 transition-colors">
+                {experience.slice(0, 3).map((job: any, i: number) => (
+                  <div key={job.id || i} className="group border-t border-black/10 pt-8 hover:bg-black/5 rounded-xl p-4 transition-colors">
                      <span className="text-sm text-black/50 block mb-2">{job.period}</span>
                      <h4 className="text-xl font-bold mb-1">{job.role}</h4>
                      <p className="text-lg text-black/70 mb-4">{job.company}</p>
                      <ul className="list-disc list-inside text-black/60 leading-relaxed text-sm">
-                        {job.highlights.slice(0, 2).map((h, idx) => (
+                        {job.highlights.slice(0, 2).map((h: string, idx: number) => (
                           <li key={idx} className="mb-1">{h}</li>
                         ))}
                      </ul>
@@ -251,8 +279,8 @@ export default function Home() {
              </div>
              
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {projects.filter(p => p.featured).map((project, i) => (
-                   <Link key={i} href="/projects">
+                {projects.slice(0, 2).map((project: any, i: number) => (
+                   <Link key={project.id || i} href="/projects">
                      <div className={`${project.color} group p-10 md:p-14 rounded-[2.5rem] shadow-sm min-h-[400px] flex flex-col justify-between cursor-pointer hover:shadow-md transition-all hover:-translate-y-1`}>
                         <div className="w-full flex justify-end">
                            <div className="w-12 h-12 bg-black/5 rounded-full flex items-center justify-center group-hover:bg-black group-hover:text-white transition-colors">
@@ -262,7 +290,7 @@ export default function Home() {
                         <div>
                            <span className="text-black/50 font-medium mb-2 block">Featured Project</span>
                            <h3 className="text-3xl md:text-4xl font-display">{project.title}</h3>
-                           <p className="mt-4 text-black/60">{project.desc}</p>
+                           <p className="mt-4 text-black/60">{project.description}</p>
                         </div>
                      </div>
                    </Link>
@@ -290,12 +318,14 @@ export default function Home() {
              <h2 className="text-3xl font-display mb-8">Latest Thoughts</h2>
              
              <div className="flex flex-col gap-6">
-                {blogs.slice(0, 3).map((post, i) => (
-                   <Link key={i} href={`/blog/${post.id}`}>
+                {blogs.slice(0, 3).map((post: any, i: number) => (
+                   <Link key={post.id || i} href={`/blog/${post.id}`}>
                      <div className="group cursor-pointer">
                         <div className="flex justify-between items-baseline mb-2">
                           <h4 className="text-xl font-bold group-hover:text-black/60 transition-colors">{post.title}</h4>
-                          <span className="text-sm text-black/40 whitespace-nowrap ml-4">{post.date}</span>
+                          <span className="text-sm text-black/40 whitespace-nowrap ml-4">
+                            {new Date(post.publishedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          </span>
                         </div>
                         <p className="text-sm text-black/50 mb-2">{post.excerpt}</p>
                         <div className="h-[1px] w-full bg-black/10 group-hover:bg-black/30 transition-colors"></div>
