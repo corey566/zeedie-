@@ -1,10 +1,8 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Save, Plus, Trash2, RefreshCw, User, Briefcase, FolderOpen, FileText, Award, Link2, Loader2, CheckCircle, AlertCircle, Edit, Settings, Linkedin, Github, LayoutGrid, ChevronUp, ChevronDown } from 'lucide-react';
 import { Link } from 'wouter';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
 import { 
   fetchProfile, 
   fetchProjects, 
@@ -33,7 +31,7 @@ function StatusMessage({ type, message }: { type: 'success' | 'error'; message: 
   );
 }
 
-type TabType = 'profile' | 'about' | 'projects' | 'blog' | 'experience' | 'skills' | 'socials' | 'linkedin' | 'settings';
+type TabType = 'profile' | 'siteconfig' | 'about' | 'projects' | 'blog' | 'experience' | 'skills' | 'socials' | 'linkedin' | 'settings';
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState<TabType>('profile');
@@ -1715,7 +1713,6 @@ function SiteConfigEditor() {
 
 function ProjectSectionsManager({ projectId }: { projectId: string }) {
   const queryClient = useQueryClient();
-  const quillRef = useRef<any>(null);
   const { data: sections = [], isLoading } = useQuery({
     queryKey: ['project-sections', projectId],
     queryFn: () => fetchProjectSections(projectId),
@@ -1773,17 +1770,6 @@ function ProjectSectionsManager({ projectId }: { projectId: string }) {
     }
   };
 
-  const modules = {
-    toolbar: [
-      [{ header: [1, 2, 3, false] }],
-      ['bold', 'italic', 'underline', 'strike'],
-      [{ list: 'ordered' }, { list: 'bullet' }],
-      [{ align: [] }],
-      ['link'],
-      ['clean'],
-    ],
-  };
-
   if (isLoading) return <Loader2 className="w-5 h-5 animate-spin" />;
 
   return (
@@ -1814,16 +1800,12 @@ function ProjectSectionsManager({ projectId }: { projectId: string }) {
             className="w-full px-4 py-3 rounded-xl border border-black/10 focus:border-black focus:outline-none"
           />
 
-          <div className="bg-white rounded-xl border border-black/10">
-            <ReactQuill
-              ref={quillRef}
-              theme="snow"
-              value={formData?.content || ''}
-              onChange={(content) => setFormData({ ...formData, content })}
-              modules={modules}
-              className="min-h-[200px]"
-            />
-          </div>
+          <textarea
+            placeholder="Section Content *"
+            value={formData?.content || ''}
+            onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+            className="w-full px-4 py-3 rounded-xl border border-black/10 focus:border-black focus:outline-none min-h-[200px]"
+          />
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <input
