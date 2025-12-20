@@ -4,12 +4,12 @@ import gsap from 'gsap';
 import { ArrowUpRight, Loader2, ExternalLink, Github } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchProjects } from '@/lib/api';
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
 
 export default function Projects() {
   const gridRef = useRef<HTMLDivElement>(null);
   const { data: projects = [], isLoading } = useQuery({ queryKey: ['projects'], queryFn: fetchProjects });
-  const navigate = useNavigate();
+  const [, setLocation] = useLocation();
 
   useEffect(() => {
     if (gridRef.current && projects.length > 0) {
@@ -55,7 +55,7 @@ export default function Projects() {
               whileHover={{ y: -8 }}
               data-testid={`card-project-${project.id || i}`}
               initial={{ opacity: 1 }}
-              onClick={() => navigate(`/projects/${project.id}`)}
+              onClick={() => setLocation(`/projects/${project.id}`)}
             >
               <div className="w-full flex justify-end gap-2 mb-8">
                 {project.githubUrl && (
