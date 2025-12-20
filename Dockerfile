@@ -20,15 +20,28 @@ FROM base AS build
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y build-essential node-gyp pkg-config python-is-python3
 
-# Install node modules
+# Install dotenv first since it's missing from package.json
 COPY package-lock.json package.json ./
-RUN npm ci --include=dev
+RUN npm install dotenv --no-save && \
+    npm ci --include=dev
 
 # Copy application code
 COPY . .
 
-# Build application
-RUN npm run build
+# Fix the build command - use a custom esbuild command to exclude problematic modules
+RUN npx esbuild server/index.ts \
+    --bundle \
+    --platform=node \
+    --format=cjs \
+    --target=node22 \
+    --outdir=dist \
+    --external:dotenv \
+    --external:@replit/vite-plugin-* \
+    --external:@tailwindcss/* \
+    --external:lightningcss \
+    --external:@babel/* \
+    --external:*.node \
+    --log-level=warning
 
 # Remove development dependencies
 RUN npm prune --omit=dev
