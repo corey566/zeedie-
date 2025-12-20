@@ -1,5 +1,4 @@
-import { motion } from "framer-motion";
-import { Link } from "wouter";
+import { Link } from 'wouter';
 
 export default function Navigation() {
   return (

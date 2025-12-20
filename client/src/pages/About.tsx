@@ -1,78 +1,79 @@
-import { motion } from "framer-motion";
+import { motion } from 'framer-motion';
+import { useRef, useEffect } from 'react';
+import gsap from 'gsap';
 
 export default function About() {
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (sectionRef.current) {
+      gsap.from(sectionRef.current.querySelectorAll('.fade-in'), {
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top 80%',
+        },
+        opacity: 0,
+        y: 30,
+        stagger: 0.1,
+        duration: 0.6,
+      });
+    }
+  }, []);
+
   return (
-    <div className="min-h-screen bg-background text-foreground pt-24 px-6 md:px-12">
+    <div className="min-h-screen bg-background text-foreground pt-32 px-6 md:px-12 pb-20">
       <div className="max-w-4xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <span className="font-mono text-xs uppercase tracking-widest text-primary">About</span>
-          <h1 className="font-display text-5xl md:text-6xl mt-4 mb-12">Full-Stack Engineer & Architect</h1>
+          <span className="inline-block font-mono text-xs uppercase tracking-widest text-primary mb-4 px-3 py-1 bg-primary/10 rounded-full">About Me</span>
+          <h1 className="font-display text-6xl md:text-7xl mt-6 mb-12 leading-tight">Full-Stack Engineer with a Focus on Enterprise Solutions</h1>
         </motion.div>
 
-        <div className="space-y-8 text-lg leading-relaxed text-muted-foreground">
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-foreground font-medium text-xl"
-          >
-            With over a decade of experience building enterprise-grade software solutions, I specialize in architecting scalable systems that handle millions of transactions while maintaining performance and reliability.
-          </motion.p>
+        <div ref={sectionRef} className="space-y-8">
+          <motion.div className="fade-in p-8 bg-secondary/30 border-2 border-border rounded-xl hover:border-primary/30 transition-colors">
+            <h3 className="font-display text-2xl mb-4">The Journey</h3>
+            <p className="text-lg text-muted-foreground leading-relaxed">
+              My university experience focused heavily on syllabus completion rather than practical, industry-ready knowledge. While fundamentals were repeatedly taught, real-world application was limited. In 2020, I began my professional journey as a freelance developer, delivering my first production website using HTML, CSS, and JavaScript. This marked the start of continuous self-driven learning.
+            </p>
+          </motion.div>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-          >
-            My expertise spans full-stack development (React, Node.js, TypeScript), cloud infrastructure (AWS, Docker, Kubernetes), and modern DevOps practices. I've led teams of engineers, managed infrastructure at scale, and mentored junior developers to senior positions.
-          </motion.p>
+          <motion.div className="fade-in p-8 bg-secondary/30 border-2 border-border rounded-xl hover:border-primary/30 transition-colors">
+            <h3 className="font-display text-2xl mb-4">Technical Evolution</h3>
+            <p className="text-lg text-muted-foreground leading-relaxed">
+              Inspired by the rise of AI, I built object recognition applications using Python and OpenCV, then expanded into React, Node.js, MERN-based projects, and Laravel-based enterprise systems. Over time, I specialized in building ERP platforms, geolocation systems, HR tracking tools, and SaaS applications.
+            </p>
+          </motion.div>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            Beyond coding, I'm passionate about solving complex problems, writing clean maintainable code, and building products that users love. I approach every project with attention to performance, security, and user experience.
-          </motion.p>
+          <motion.div className="fade-in p-8 bg-secondary/30 border-2 border-border rounded-xl hover:border-primary/30 transition-colors">
+            <h3 className="font-display text-2xl mb-4">Current Focus</h3>
+            <p className="text-lg text-muted-foreground leading-relaxed">
+              Today, I deliver measurable business value across multiple industries. From web scrapers that generate leads, to ERP systems processing millions in transactions, to automation workflows saving hours of manual work — every project is built with attention to performance, scalability, and user experience.
+            </p>
+          </motion.div>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-          >
-            When I'm not coding, you'll find me contributing to open-source projects, writing technical articles, or exploring emerging technologies like AI/ML and distributed systems.
-          </motion.p>
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="mt-16 pt-16 border-t border-border"
-        >
-          <h2 className="font-display text-3xl mb-8">Core Values</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 pt-12 border-t border-border">
             {[
-              { title: "Excellence", desc: "Writing code that's maintainable, tested, and performs under pressure." },
-              { title: "Innovation", desc: "Constantly learning and adopting new technologies to solve problems better." },
-              { title: "Collaboration", desc: "Building great products requires great teams. Communication is key." },
-            ].map((value, i) => (
-              <div key={i} className="p-6 border border-border rounded-lg hover:bg-secondary transition-colors">
-                <h3 className="font-display text-xl mb-3">{value.title}</h3>
-                <p className="text-sm text-muted-foreground">{value.desc}</p>
-              </div>
+              { label: 'Languages', value: 'PHP, JavaScript, Python, Laravel' },
+              { label: 'Specialties', value: 'ERP, SaaS, CRM, Automation' },
+              { label: 'Industries', value: 'SaaS, Finance, Logistics, Printing' },
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="fade-in p-6 bg-primary/5 border-2 border-primary/20 rounded-lg hover:border-primary/50 transition-colors"
+              >
+                <p className="text-sm text-primary font-semibold mb-2">{item.label}</p>
+                <p className="text-muted-foreground">{item.value}</p>
+              </motion.div>
             ))}
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

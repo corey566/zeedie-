@@ -11,6 +11,7 @@ import Projects from "@/pages/Projects";
 import Skills from "@/pages/Skills";
 import Contact from "@/pages/Contact";
 import Navigation from "@/components/Navigation";
+import CursorTracker from "@/components/CursorTracker";
 
 function Router() {
   return (
@@ -31,6 +32,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
+        <CursorTracker />
         <Navigation />
         <Router />
       </TooltipProvider>
