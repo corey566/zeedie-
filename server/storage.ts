@@ -33,6 +33,7 @@ import {
   footerLinks,
   linkedinPosts,
   githubContributions,
+  aboutBlocks,
   projectSections
 } from "@shared/schema";
 import { db } from "@db";
