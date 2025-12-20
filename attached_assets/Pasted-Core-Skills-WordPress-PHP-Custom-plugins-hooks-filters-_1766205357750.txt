@@ -1,0 +1,59 @@
+Core Skills
+WordPress & PHP
+● Custom plugins, hooks, filters, Gutenberg blocks
+● WooCommerce, Stripe, PayPal, API payments
+● Custom dashboards, ERP-style systems, CRM integrations
+● OOP PHP 8+, namespaces, Composer, REST APIs
+JavaScript & Front-End
+● ES6+, React, jQuery
+● Custom admin interfaces
+
+● Maintained and developed company SaaS platforms:
+○ zimozo.com, zimozo.lk — digital services platform
+○ card.lk — leading digital vCard solution in Sri Lanka
+● Built a form-based Laravel SaaS website builder, enabling organizations to create
+and sell websites without coding.
+● Developed Hola.lk, an advanced geolocation tracking & HRM platform for field staff:
+○ Real-time GPS tracking
+○ Multi-location route assignments
+○ Attendance & workflow automation
+● Built corporate WordPress and React applications for clients, including:
+○ youchoose.lk
+○ ecoagri.lk
+○ otc.lk
+○ fonehouse.lk
+● Implemented AI-powered development and automation using Replit, Bolt, and
+Cloud-AI for:
+○ Lead generation
+○ Content creation
+○ Email and CRM workflow automation
+● Collaborated with international freelancers to ensure 24/7 uptime and iterative
+platform improvements.
+Freelance Full-Stack Developer
+Upwork & Fiverr — Remote
+2023 – 2024
+● Built complete WordPress websites, custom ERP dashboards, and CRM systems for
+international organizations.
+● Integrated Meta API with custom WordPress admin panels for marketing automation.
+● Developed Laravel/PHP POS systems and automated email marketing flows using
+n8n, custom agents, and script integrations.
+● Delivered high-quality, scalable solutions consistently rated 5 stars by clients.
+In-House Developer & Digital Media Manager
+SCTDJM — Kingston, Jamaica
+2021 – 2023
+● Managed internal and client WordPress systems including APIs, SEO, security, and
+site optimization.
+● Integrated major U.S. distributor APIs for product synchronization:
+○ Ingram Micro USA
+○ Clover Imaging Group
+○ HP USA
+○ Varstreet Technologies USA
+● Led digital media operations including:
+○ Web scraping for lead generation
+○ Email campaigns (Mailchimp & MailWizz)
+○ SEO and monthly analytics optimization
+● Invented and developed the Ink Coverage Estimator, a tool that analyzes
+documents and estimates ink usage and pricing.
+○ Gained industry recognition from large printing companies
+○ Improved sales and lead acquisition significantly
+○ Live Demo: http://inkestimator.sctdjm.com/
