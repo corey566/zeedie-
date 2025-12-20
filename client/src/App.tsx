@@ -12,6 +12,7 @@ import Home from "@/pages/Home";
 import About from "@/pages/About";
 import Experience from "@/pages/Experience";
 import Projects from "@/pages/Projects";
+import ProjectDetail from "@/pages/ProjectDetail";
 import Skills from "@/pages/Skills";
 import Contact from "@/pages/Contact";
 import Navigation from "@/components/Navigation";
@@ -95,6 +96,7 @@ function Router() {
       <Route path="/about" component={About} />
       <Route path="/experience" component={Experience} />
       <Route path="/projects" component={Projects} />
+      <Route path="/projects/:id" component={ProjectDetail} />
       <Route path="/skills" component={Skills} />
       <Route path="/blog" component={Blog} />
       <Route path="/blog/:id" component={BlogPost} />

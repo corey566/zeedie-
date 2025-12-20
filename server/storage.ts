@@ -21,6 +21,8 @@ import {
   type InsertGithubContribution,
   type AboutBlock,
   type InsertAboutBlock,
+  type ProjectSection,
+  type InsertProjectSection,
   users,
   profile,
   projects,
@@ -31,7 +33,7 @@ import {
   footerLinks,
   linkedinPosts,
   githubContributions,
-  aboutBlocks
+  projectSections
 } from "@shared/schema";
 import { db } from "@db";
 import { eq, desc } from "drizzle-orm";
@@ -103,6 +105,12 @@ export interface IStorage {
   createAboutBlock(block: InsertAboutBlock): Promise<AboutBlock>;
   updateAboutBlock(id: string, block: Partial<InsertAboutBlock>): Promise<AboutBlock | undefined>;
   deleteAboutBlock(id: string): Promise<boolean>;
+
+  // Project Sections methods
+  getProjectSections(projectId: string): Promise<ProjectSection[]>;
+  createProjectSection(data: InsertProjectSection): Promise<ProjectSection>;
+  updateProjectSection(id: string, data: Partial<InsertProjectSection>): Promise<ProjectSection | undefined>;
+  deleteProjectSection(id: string): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -333,6 +341,26 @@ export class DatabaseStorage implements IStorage {
 
   async deleteAboutBlock(id: string): Promise<boolean> {
     const result = await db.delete(aboutBlocks).where(eq(aboutBlocks.id, id));
+    return result.rowCount ? result.rowCount > 0 : false;
+  }
+
+  // Project Sections
+  async getProjectSections(projectId: string): Promise<ProjectSection[]> {
+    return db.select().from(projectSections).where(eq(projectSections.projectId, projectId)).orderBy(projectSections.order);
+  }
+
+  async createProjectSection(data: InsertProjectSection): Promise<ProjectSection> {
+    const [section] = await db.insert(projectSections).values(data).returning();
+    return section;
+  }
+
+  async updateProjectSection(id: string, data: Partial<InsertProjectSection>): Promise<ProjectSection | undefined> {
+    const [section] = await db.update(projectSections).set(data).where(eq(projectSections.id, id)).returning();
+    return section;
+  }
+
+  async deleteProjectSection(id: string): Promise<boolean> {
+    const result = await db.delete(projectSections).where(eq(projectSections.id, id));
     return result.rowCount ? result.rowCount > 0 : false;
   }
 }

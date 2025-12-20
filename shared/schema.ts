@@ -168,3 +168,20 @@ export const githubContributions = pgTable("github_contributions", {
 export const insertGithubContributionSchema = createInsertSchema(githubContributions).omit({ id: true, createdAt: true });
 export type InsertGithubContribution = z.infer<typeof insertGithubContributionSchema>;
 export type GithubContribution = typeof githubContributions.$inferSelect;
+
+// Project Detail Sections (rich content for project detail pages)
+export const projectSections = pgTable("project_sections", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").notNull().references(() => projects.id, { onDelete: 'cascade' }),
+  title: text("title"),
+  content: text("content").notNull(), // Rich HTML content
+  imageUrl: text("image_url"),
+  imageAlignment: text("image_alignment"), // 'left', 'right', 'center', 'top', 'bottom'
+  imageCaption: text("image_caption"),
+  order: integer("order").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertProjectSectionSchema = createInsertSchema(projectSections).omit({ id: true, createdAt: true });
+export type InsertProjectSection = z.infer<typeof insertProjectSectionSchema>;
+export type ProjectSection = typeof projectSections.$inferSelect;

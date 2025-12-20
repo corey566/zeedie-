@@ -1,6 +1,28 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Quill Editor Styling */
+.ql-toolbar {
+  border-radius: 0.75rem 0.75rem 0 0 !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.ql-container {
+  border-radius: 0 0 0.75rem 0.75rem !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  font-family: inherit !important;
+}
+
+.ql-editor {
+  min-height: 200px;
+  font-size: 1rem;
+}
+
+.ql-editor.ql-blank::before {
+  color: rgba(0, 0, 0, 0.4);
+  font-style: normal;
+}
+
 @theme inline {
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
@@ -33,32 +55,32 @@
   /* Swiss Minimal White Theme */
   --background: 0 0% 100%; /* Pure White */
   --foreground: 0 0% 4%;   /* #0A0A0A */
-  
+
   --card: 0 0% 100%;
   --card-foreground: 0 0% 4%;
-  
+
   --popover: 0 0% 100%;
   --popover-foreground: 0 0% 4%;
-  
+
   --primary: 0 0% 4%;      /* Near Black */
   --primary-foreground: 0 0% 98%;
-  
+
   --secondary: 0 0% 96%;   /* Very Light Gray for secondary elements */
   --secondary-foreground: 0 0% 4%;
-  
+
   --muted: 0 0% 93%;       /* #EDEDED - Subtle Gray Accent */
   --muted-foreground: 0 0% 45%;
-  
+
   --accent: 0 0% 96%;
   --accent-foreground: 0 0% 4%;
-  
+
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 98%;
 
   --border: 0 0% 90%;
   --input: 0 0% 90%;
   --ring: 0 0% 4%;
-  
+
   --radius: 1.5rem; /* Rounded modern feel */
 }
 
@@ -79,7 +101,7 @@
   .text-balance {
     text-wrap: balance;
   }
-  
+
   /* Hide scrollbar for clean look but allow scrolling */
   .no-scrollbar::-webkit-scrollbar {
     display: none;

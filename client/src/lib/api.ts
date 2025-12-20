@@ -103,3 +103,42 @@ export async function updateSiteConfig(data: any) {
   if (!res.ok) throw new Error('Failed to update site configuration');
   return res.json();
 }
+
+export async function fetchProjectSections(projectId: string) {
+  const res = await fetch(`${API_BASE}/projects/${projectId}/sections`);
+  if (!res.ok) throw new Error('Failed to fetch project sections');
+  return res.json();
+}
+
+export async function createProjectSection(projectId: string, data: any) {
+  const res = await fetch(`${API_BASE}/projects/${projectId}/sections`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Failed to create project section');
+  return res.json();
+}
+
+export async function updateProjectSection(id: string, data: any) {
+  const res = await fetch(`${API_BASE}/project-sections/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Failed to update project section');
+  return res.json();
+}
+
+export async function deleteProjectSection(id: string) {
+  const res = await fetch(`${API_BASE}/project-sections/${id}`, {
+    method: 'DELETE',
+  });
+  if (!res.ok) throw new Error('Failed to delete project section');
+}
+
+export async function fetchProject(id: string) {
+  const res = await fetch(`${API_BASE}/projects/${id}`);
+  if (!res.ok) throw new Error('Failed to fetch project');
+  return res.json();
+}

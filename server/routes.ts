@@ -577,6 +577,51 @@ export async function registerRoutes(
     }
   });
 
+  // Project Sections routes
+  app.get("/api/projects/:projectId/sections", async (req, res) => {
+    try {
+      const sections = await storage.getProjectSections(req.params.projectId);
+      res.json(sections);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch project sections" });
+    }
+  });
+
+  app.post("/api/projects/:projectId/sections", async (req, res) => {
+    try {
+      const section = await storage.createProjectSection({ ...req.body, projectId: req.params.projectId });
+      res.status(201).json(section);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create project section" });
+    }
+  });
+
+  app.put("/api/project-sections/:id", async (req, res) => {
+    try {
+      const section = await storage.updateProjectSection(req.params.id, req.body);
+      if (!section) {
+        res.status(404).json({ error: "Section not found" });
+        return;
+      }
+      res.json(section);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update section" });
+    }
+  });
+
+  app.delete("/api/project-sections/:id", async (req, res) => {
+    try {
+      const success = await storage.deleteProjectSection(req.params.id);
+      if (!success) {
+        res.status(404).json({ error: "Section not found" });
+        return;
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete section" });
+    }
+  });
+
   // Site configuration routes
   app.get("/api/site-config", async (_req, res) => {
     try {

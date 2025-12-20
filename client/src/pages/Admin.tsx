@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Save, Plus, Trash2, RefreshCw, User, Briefcase, FolderOpen, FileText, Award, Link2, Loader2, CheckCircle, AlertCircle, Edit, Settings, Linkedin, Github, LayoutGrid } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Trash2, RefreshCw, User, Briefcase, FolderOpen, FileText, Award, Link2, Loader2, CheckCircle, AlertCircle, Edit, Settings, Linkedin, Github, LayoutGrid, ChevronUp, ChevronDown } from 'lucide-react';
 import { Link } from 'wouter';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 import { 
   fetchProfile, 
   fetchProjects, 
@@ -14,7 +16,11 @@ import {
   fetchAboutBlocks,
   syncGithubContributions,
   fetchSiteConfig,
-  updateSiteConfig
+  updateSiteConfig,
+  fetchProjectSections,
+  createProjectSection,
+  updateProjectSection,
+  deleteProjectSection
 } from '@/lib/api';
 import Footer from '@/components/Footer';
 
@@ -281,6 +287,7 @@ function ProjectsEditor() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<any>(null);
   const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [managingSections, setManagingSections] = useState<string | null>(null);
 
   const createMutation = useMutation({
     mutationFn: async (data: any) => {
@@ -449,27 +456,40 @@ function ProjectsEditor() {
 
       <div className="space-y-3">
         {projects.map((project: any) => (
-          <div key={project.id} className="flex items-center justify-between p-4 bg-black/5 rounded-xl">
-            <div>
-              <h3 className="font-bold">{project.title}</h3>
-              <p className="text-sm text-black/60">{project.description}</p>
+          <div key={project.id}>
+            <div className="flex items-center justify-between p-4 bg-black/5 rounded-xl">
+              <div className="flex-1">
+                <h3 className="font-bold">{project.title}</h3>
+                <p className="text-sm text-black/60">{project.description}</p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setManagingSections(managingSections === project.id ? null : project.id)}
+                  className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
+                >
+                  Manage Content
+                </button>
+                <button
+                  onClick={() => handleEdit(project)}
+                  className="p-2 hover:bg-black/10 rounded-lg"
+                  data-testid={`button-edit-project-${project.id}`}
+                >
+                  <Edit className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => deleteMutation.mutate(project.id)}
+                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                  data-testid={`button-delete-project-${project.id}`}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
             </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleEdit(project)}
-                className="p-2 hover:bg-black/10 rounded-lg"
-                data-testid={`button-edit-project-${project.id}`}
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => deleteMutation.mutate(project.id)}
-                className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
-                data-testid={`button-delete-project-${project.id}`}
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
+            {managingSections === project.id && (
+              <div className="mt-2 p-4 bg-white rounded-xl border border-black/10">
+                <ProjectSectionsManager projectId={project.id} />
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -1687,6 +1707,202 @@ function SiteConfigEditor() {
           >
             Reset
           </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ProjectSectionsManager({ projectId }: { projectId: string }) {
+  const queryClient = useQueryClient();
+  const quillRef = useRef<any>(null);
+  const { data: sections = [], isLoading } = useQuery({
+    queryKey: ['project-sections', projectId],
+    queryFn: () => fetchProjectSections(projectId),
+  });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [formData, setFormData] = useState<any>(null);
+  const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  const createMutation = useMutation({
+    mutationFn: async (data: any) => createProjectSection(projectId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['project-sections', projectId] });
+      setFormData(null);
+      setEditingId(null);
+      setStatus({ type: 'success', message: 'Section created successfully!' });
+    },
+    onError: () => setStatus({ type: 'error', message: 'Failed to create section.' }),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: any }) => updateProjectSection(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['project-sections', projectId] });
+      setFormData(null);
+      setEditingId(null);
+      setStatus({ type: 'success', message: 'Section updated successfully!' });
+    },
+    onError: () => setStatus({ type: 'error', message: 'Failed to update section.' }),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => deleteProjectSection(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['project-sections', projectId] });
+      setStatus({ type: 'success', message: 'Section deleted successfully!' });
+    },
+    onError: () => setStatus({ type: 'error', message: 'Failed to delete section.' }),
+  });
+
+  const handleEdit = (section: any) => {
+    setEditingId(section.id);
+    setFormData({ ...section });
+    setStatus(null);
+  };
+
+  const handleSave = () => {
+    if (!formData?.content?.trim()) {
+      setStatus({ type: 'error', message: 'Content is required.' });
+      return;
+    }
+    if (editingId === 'new') {
+      createMutation.mutate(formData);
+    } else {
+      updateMutation.mutate({ id: editingId!, data: formData });
+    }
+  };
+
+  const modules = {
+    toolbar: [
+      [{ header: [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ list: 'ordered' }, { list: 'bullet' }],
+      [{ align: [] }],
+      ['link'],
+      ['clean'],
+    ],
+  };
+
+  if (isLoading) return <Loader2 className="w-5 h-5 animate-spin" />;
+
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h3 className="font-bold text-lg">Project Content Sections</h3>
+        <button
+          onClick={() => {
+            setEditingId('new');
+            setFormData({ title: '', content: '', imageUrl: '', imageAlignment: '', imageCaption: '', order: sections.length });
+            setStatus(null);
+          }}
+          className="flex items-center gap-2 px-3 py-2 bg-black text-white rounded-lg text-sm hover:bg-black/80"
+        >
+          <Plus className="w-4 h-4" /> Add Section
+        </button>
+      </div>
+
+      {status && <StatusMessage type={status.type} message={status.message} />}
+
+      {editingId && (
+        <div className="bg-black/5 p-4 rounded-xl space-y-4">
+          <input
+            type="text"
+            placeholder="Section Title (optional)"
+            value={formData?.title || ''}
+            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+            className="w-full px-4 py-3 rounded-xl border border-black/10 focus:border-black focus:outline-none"
+          />
+
+          <div className="bg-white rounded-xl border border-black/10">
+            <ReactQuill
+              ref={quillRef}
+              theme="snow"
+              value={formData?.content || ''}
+              onChange={(content) => setFormData({ ...formData, content })}
+              modules={modules}
+              className="min-h-[200px]"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <input
+              type="url"
+              placeholder="Image URL (optional)"
+              value={formData?.imageUrl || ''}
+              onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+              className="px-4 py-3 rounded-xl border border-black/10 focus:border-black focus:outline-none"
+            />
+            <select
+              value={formData?.imageAlignment || ''}
+              onChange={(e) => setFormData({ ...formData, imageAlignment: e.target.value })}
+              className="px-4 py-3 rounded-xl border border-black/10 focus:border-black focus:outline-none"
+            >
+              <option value="">No Image</option>
+              <option value="top">Top</option>
+              <option value="bottom">Bottom</option>
+              <option value="left">Left (text wraps)</option>
+              <option value="right">Right (text wraps)</option>
+              <option value="center">Center</option>
+            </select>
+            <input
+              type="text"
+              placeholder="Image caption (optional)"
+              value={formData?.imageCaption || ''}
+              onChange={(e) => setFormData({ ...formData, imageCaption: e.target.value })}
+              className="px-4 py-3 rounded-xl border border-black/10 focus:border-black focus:outline-none"
+            />
+          </div>
+
+          <div className="flex gap-2">
+            <button
+              onClick={handleSave}
+              disabled={createMutation.isPending || updateMutation.isPending || !formData?.content?.trim()}
+              className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg disabled:opacity-50"
+            >
+              {(createMutation.isPending || updateMutation.isPending) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              {editingId === 'new' ? 'Create' : 'Update'}
+            </button>
+            <button
+              onClick={() => { setEditingId(null); setFormData(null); setStatus(null); }}
+              className="px-4 py-2 bg-black/10 rounded-lg"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="space-y-2">
+        {sections.map((section: any) => (
+          <div key={section.id} className="flex items-start justify-between p-3 bg-white rounded-lg border border-black/10">
+            <div className="flex-1">
+              <h4 className="font-medium">{section.title || 'Untitled Section'}</h4>
+              <div className="text-sm text-black/60 mt-1 line-clamp-2" dangerouslySetInnerHTML={{ __html: section.content }} />
+              {section.imageUrl && (
+                <span className="inline-block mt-2 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                  Image: {section.imageAlignment || 'top'}
+                </span>
+              )}
+            </div>
+            <div className="flex gap-1 ml-4">
+              <button
+                onClick={() => handleEdit(section)}
+                className="p-2 hover:bg-black/5 rounded"
+              >
+                <Edit className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => deleteMutation.mutate(section.id)}
+                className="p-2 text-red-600 hover:bg-red-50 rounded"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        ))}
+        {sections.length === 0 && !editingId && (
+          <p className="text-center text-black/40 py-8">No sections yet. Add your first section above.</p>
         )}
       </div>
     </div>
