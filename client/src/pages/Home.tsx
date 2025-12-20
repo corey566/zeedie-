@@ -1,8 +1,9 @@
 import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { ArrowUpRight, Copy, ArrowRight, Code, Database, Globe } from 'lucide-react';
+import { ArrowUpRight, Globe, Github, Linkedin, ArrowRight } from 'lucide-react';
 import { Link } from 'wouter';
 import videoSrc from '@assets/generated_videos/slow_motion_abstract_liquid_grayscale.mp4';
+import { projects, blogs, experience, linkedinPosts } from '@/lib/data';
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -12,6 +13,31 @@ export default function Home() {
   });
 
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
+
+  // Custom GitHub Calendar Mock
+  const ContributionGraph = () => {
+    const weeks = 52;
+    const days = 7;
+    return (
+      <div className="flex gap-1 overflow-x-auto pb-2">
+        {Array.from({ length: weeks }).map((_, w) => (
+          <div key={w} className="flex flex-col gap-1">
+            {Array.from({ length: days }).map((_, d) => {
+              const level = Math.random() > 0.7 ? Math.floor(Math.random() * 4) + 1 : 0;
+              const colors = ['bg-gray-100', 'bg-green-200', 'bg-green-300', 'bg-green-400', 'bg-green-500'];
+              return (
+                <div 
+                  key={d} 
+                  className={`w-3 h-3 rounded-sm ${colors[level]}`} 
+                  title={`Contribution level: ${level}`}
+                />
+              );
+            })}
+          </div>
+        ))}
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-[#f2f2f2] text-foreground font-sans selection:bg-black selection:text-white" ref={containerRef}>
@@ -79,6 +105,20 @@ export default function Home() {
                 </h2>
               </div>
 
+               {/* Mobile CTA: Inside the name card */}
+               <div className="mt-4 md:hidden">
+                <Link href="/projects">
+                  <motion.button 
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="w-full bg-black text-white px-6 py-4 rounded-full font-medium text-sm flex items-center justify-between group shadow-xl hover:shadow-2xl transition-all cursor-pointer"
+                  >
+                    View Selected Work
+                    <ArrowUpRight className="w-4 h-4 group-hover:rotate-45 transition-transform" />
+                  </motion.button>
+                </Link>
+              </div>
+
               {/* Inverted Corner Right Side */}
               <div className="absolute bottom-0 -right-[40px] w-[40px] h-[40px] bg-transparent shadow-[-20px_20px_0_0_#fff] rounded-bl-[20px] pointer-events-none hidden md:block" />
             </div>
@@ -89,8 +129,8 @@ export default function Home() {
                 <span className="text-xs font-mono mt-2">SCROLL</span>
              </div>
 
-            {/* CTA Button */}
-            <div className="p-6 md:p-10 w-full md:w-auto flex justify-end bg-gradient-to-t from-black/20 to-transparent md:bg-none">
+            {/* Desktop CTA Button */}
+            <div className="hidden md:flex p-6 md:p-10 w-full md:w-auto justify-end bg-gradient-to-t from-black/20 to-transparent md:bg-none">
               <Link href="/projects">
                 <motion.button 
                   whileHover={{ scale: 1.05 }}
@@ -131,6 +171,48 @@ export default function Home() {
               </div>
           </div>
 
+          {/* GitHub Activity - NEW SECTION */}
+          <div className="md:col-span-12 bg-white p-10 md:p-14 rounded-[2.5rem] shadow-sm overflow-hidden">
+             <div className="flex items-center gap-4 mb-8">
+                <Github className="w-8 h-8" />
+                <h2 className="text-3xl md:text-4xl font-display">Open Source Contributions</h2>
+             </div>
+             <div className="w-full overflow-x-auto pb-4">
+                <div className="min-w-[800px]">
+                  <ContributionGraph />
+                </div>
+             </div>
+          </div>
+
+          {/* LinkedIn Feed - NEW SECTION */}
+          <div className="md:col-span-12 bg-[#0077b5]/5 border border-[#0077b5]/10 p-10 md:p-14 rounded-[2.5rem] shadow-sm">
+             <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-4">
+                  <Linkedin className="w-8 h-8 text-[#0077b5]" />
+                  <h2 className="text-3xl font-display">Recent Updates</h2>
+                </div>
+                <a href="https://linkedin.com" target="_blank" className="text-[#0077b5] font-medium hover:underline">View Profile</a>
+             </div>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {linkedinPosts.map((post) => (
+                  <div key={post.id} className="bg-white p-6 rounded-2xl shadow-sm border border-black/5">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white font-bold text-xs">ZD</div>
+                      <div>
+                        <p className="font-bold text-sm">ZEE DIE</p>
+                        <p className="text-xs text-gray-500">{post.date}</p>
+                      </div>
+                    </div>
+                    <p className="text-gray-800 mb-4">{post.content}</p>
+                    <div className="flex gap-4 text-xs text-gray-500 font-medium border-t border-gray-100 pt-3">
+                      <span>{post.likes} Likes</span>
+                      <span>{post.comments} Comments</span>
+                    </div>
+                  </div>
+                ))}
+             </div>
+          </div>
+
           {/* Recent Experience */}
           <div className="md:col-span-12 bg-white p-10 md:p-14 rounded-[2.5rem] shadow-sm">
              <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
@@ -144,16 +226,16 @@ export default function Home() {
              </div>
 
              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {[
-                  { role: "Senior Frontend Engineer", company: "TechFlow", period: "2023 - Present", desc: "Leading frontend architecture for enterprise SaaS products." },
-                  { role: "Full Stack Developer", company: "InnovateLabs", period: "2021 - 2023", desc: "Built scalable web applications using React and Node.js." },
-                  { role: "UI/UX Developer", company: "Creative Studio", period: "2019 - 2021", desc: "Designed and implemented award-winning web interfaces." }
-                ].map((job, i) => (
+                {experience.map((job, i) => (
                   <div key={i} className="group border-t border-black/10 pt-8 hover:bg-black/5 rounded-xl p-4 transition-colors">
                      <span className="text-sm text-black/50 block mb-2">{job.period}</span>
                      <h4 className="text-xl font-bold mb-1">{job.role}</h4>
                      <p className="text-lg text-black/70 mb-4">{job.company}</p>
-                     <p className="text-black/60 leading-relaxed">{job.desc}</p>
+                     <ul className="list-disc list-inside text-black/60 leading-relaxed text-sm">
+                        {job.highlights.slice(0, 2).map((h, idx) => (
+                          <li key={idx} className="mb-1">{h}</li>
+                        ))}
+                     </ul>
                   </div>
                 ))}
              </div>
@@ -169,12 +251,7 @@ export default function Home() {
              </div>
              
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {[
-                  { title: "E-Commerce Dashboard", cat: "SaaS Product", color: "bg-blue-50" },
-                  { title: "FinTech Mobile App", cat: "Mobile Design", color: "bg-green-50" },
-                  { title: "AI Content Generator", cat: "Web Application", color: "bg-purple-50" },
-                  { title: "Architecture Portfolio", cat: "Web Design", color: "bg-orange-50" }
-                ].map((project, i) => (
+                {projects.filter(p => p.featured).map((project, i) => (
                    <Link key={i} href="/projects">
                      <div className={`${project.color} group p-10 md:p-14 rounded-[2.5rem] shadow-sm min-h-[400px] flex flex-col justify-between cursor-pointer hover:shadow-md transition-all hover:-translate-y-1`}>
                         <div className="w-full flex justify-end">
@@ -183,8 +260,9 @@ export default function Home() {
                            </div>
                         </div>
                         <div>
-                           <span className="text-black/50 font-medium mb-2 block">{project.cat}</span>
+                           <span className="text-black/50 font-medium mb-2 block">Featured Project</span>
                            <h3 className="text-3xl md:text-4xl font-display">{project.title}</h3>
+                           <p className="mt-4 text-black/60">{project.desc}</p>
                         </div>
                      </div>
                    </Link>
@@ -212,16 +290,13 @@ export default function Home() {
              <h2 className="text-3xl font-display mb-8">Latest Thoughts</h2>
              
              <div className="flex flex-col gap-6">
-                {[
-                  { title: "The Future of Frontend Architecture", date: "Dec 12, 2024" },
-                  { title: "Mastering Framer Motion Animations", date: "Nov 28, 2024" },
-                  { title: "Why Minimalism Matters in UI", date: "Nov 15, 2024" }
-                ].map((post, i) => (
+                {blogs.map((post, i) => (
                    <div key={i} className="group cursor-pointer">
                       <div className="flex justify-between items-baseline mb-2">
                         <h4 className="text-xl font-bold group-hover:text-black/60 transition-colors">{post.title}</h4>
                         <span className="text-sm text-black/40 whitespace-nowrap ml-4">{post.date}</span>
                       </div>
+                      <p className="text-sm text-black/50 mb-2">{post.excerpt}</p>
                       <div className="h-[1px] w-full bg-black/10 group-hover:bg-black/30 transition-colors"></div>
                    </div>
                 ))}
@@ -236,7 +311,7 @@ export default function Home() {
         {/* Footer */}
         <footer className="mt-20 md:mt-32 mb-10 max-w-7xl mx-auto w-full text-center">
            <h2 className="font-display text-[10vw] leading-none tracking-tight text-black/10 select-none">
-            ZEE DIE
+            ZEEDIE
           </h2>
           <div className="flex flex-col md:flex-row justify-center items-center gap-6 mt-8 text-sm font-medium opacity-60">
             <span>&copy; 2025 Zee Die Portfolio</span>
