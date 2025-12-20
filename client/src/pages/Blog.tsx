@@ -5,6 +5,7 @@ import { ArrowLeft, Clock, Tag } from 'lucide-react';
 import { Link } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { fetchBlogPosts } from '@/lib/api';
+import Footer from '@/components/Footer';
 
 export default function Blog() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -75,21 +76,7 @@ export default function Blog() {
         )}
 
         {/* Footer */}
-        <footer className="mt-20 md:mt-32 mb-10 max-w-7xl mx-auto w-full text-center">
-          <h2 className="font-display text-[10vw] leading-none tracking-tight text-black/10 select-none">
-            ZEEDIE
-          </h2>
-          <div className="flex flex-col md:flex-row justify-center items-center gap-6 mt-8 text-sm font-medium opacity-60">
-            <span>&copy; 2025 ZEEDIE Portfolio</span>
-            <span className="hidden md:inline">&bull;</span>
-            <div className="flex gap-6">
-              <a href="#" className="hover:text-black">Twitter</a>
-              <a href="#" className="hover:text-black">LinkedIn</a>
-              <a href="#" className="hover:text-black">GitHub</a>
-              <a href="#" className="hover:text-black">Instagram</a>
-            </div>
-          </div>
-        </footer>
+        <Footer />
       </div>
     </div>
   );

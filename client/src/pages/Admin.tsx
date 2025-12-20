@@ -14,6 +14,7 @@ import {
   fetchAboutBlocks,
   syncGithubContributions
 } from '@/lib/api';
+import Footer from '@/components/Footer';
 
 function StatusMessage({ type, message }: { type: 'success' | 'error'; message: string }) {
   return (
@@ -56,7 +57,7 @@ export default function Admin() {
                 <ArrowLeft className="w-5 h-5" /> Back to Site
               </button>
             </Link>
-            
+
             <button
               onClick={() => {
                 localStorage.removeItem('adminToken');
@@ -103,6 +104,7 @@ export default function Admin() {
           {activeTab === 'settings' && <SettingsEditor />}
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
@@ -155,7 +157,7 @@ function ProfileEditor() {
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-display mb-6">Edit Profile</h2>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label className="block text-sm font-medium text-black/60 mb-2">Name *</label>
@@ -244,7 +246,7 @@ function ProfileEditor() {
         <button
           onClick={() => updateMutation.mutate(formData)}
           disabled={updateMutation.isPending || !formData || !validateForm()}
-          className="flex items-center gap-2 px-6 py-3 bg-black text-white rounded-full font-medium hover:bg-black/80 transition-colors disabled:opacity-50"
+          className="flex items-center gap-2 px-6 py-3 bg-black text-white rounded-full font-medium hover:bg-black/80 disabled:opacity-50"
           data-testid="button-save-profile"
         >
           {updateMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
@@ -254,7 +256,7 @@ function ProfileEditor() {
         <button
           onClick={handleSync}
           disabled={syncing}
-          className="flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-full font-medium hover:bg-green-700 transition-colors disabled:opacity-50"
+          className="flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-full font-medium hover:bg-green-700 disabled:opacity-50"
           data-testid="button-sync-github"
         >
           {syncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}

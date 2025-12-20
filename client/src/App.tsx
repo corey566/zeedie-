@@ -140,7 +140,7 @@ function App() {
         <CursorTracker />
         {!isAdminPage && <Navigation />}
         <Router />
-        {!isAdminPage && <FloatingCV />}
+        <FloatingCV />
       </TooltipProvider>
     </QueryClientProvider>
   );
