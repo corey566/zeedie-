@@ -2,9 +2,24 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
+import { db } from "@db";
+import { sql } from "drizzle-orm";
 
 const app = express();
 const httpServer = createServer(app);
+
+async function checkDatabaseConnection() {
+  console.log("Checking database connection...");
+  try {
+    await db.execute(sql`SELECT 1`);
+    console.log("Database connection successful.");
+    return true;
+  } catch (error) {
+    console.error("Database connection failed:", error);
+    console.log("Please ensure DATABASE_URL is set correctly.");
+    return false;
+  }
+}
 
 declare module "http" {
   interface IncomingMessage {
@@ -60,6 +75,9 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Check database connection on startup
+  await checkDatabaseConnection();
+  
   await registerRoutes(httpServer, app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
