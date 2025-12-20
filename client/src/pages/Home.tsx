@@ -1,24 +1,14 @@
-import { motion, useSpring, useMotionValue } from "framer-motion";
+import { motion } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { Suspense } from "react";
-import ThreeScene from "../components/ThreeScene";
-import InteractiveShape from "../components/InteractiveShape";
-import ProjectItem from "../components/ProjectItem";
 import { ArrowDown } from "lucide-react";
 
-// Import stock images
-import img1 from '@assets/stock_images/minimalist_architect_9b89207c.jpg';
-import img2 from '@assets/stock_images/minimalist_architect_883f8d80.jpg';
-import img3 from '@assets/stock_images/minimalist_architect_1e790704.jpg';
-import img4 from '@assets/stock_images/minimalist_architect_2cd0d1ee.jpg';
-import img5 from '@assets/stock_images/minimalist_architect_74bf2b82.jpg';
-
 const projects = [
-  { title: "Lumina Interface", category: "Design System", year: "2024", image: img1 },
-  { title: "Apex Finance", category: "Fintech App", year: "2023", image: img2 },
-  { title: "Mono Architecture", category: "Web Development", year: "2023", image: img3 },
-  { title: "Vanguard", category: "Brand Identity", year: "2022", image: img4 },
-  { title: "Echo Spaces", category: "3D Experience", year: "2022", image: img5 },
+  { title: "Lumina Interface", category: "Design System", year: "2024" },
+  { title: "Apex Finance", category: "Fintech App", year: "2023" },
+  { title: "Mono Architecture", category: "Web Development", year: "2023" },
+  { title: "Vanguard", category: "Brand Identity", year: "2022" },
+  { title: "Echo Spaces", category: "3D Experience", year: "2022" },
 ];
 
 const skills = [
@@ -27,58 +17,41 @@ const skills = [
   { category: "Graphics", items: ["Three.js", "WebGL", "GSAP", "Shaders"] },
 ];
 
+function ProjectItem({ title, index }: { title: string; index: number }) {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <motion.div 
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: index * 0.1 }}
+      viewport={{ once: true }}
+      className="group relative flex items-baseline justify-between py-8 border-b border-border transition-colors hover:border-foreground/20 cursor-pointer"
+    >
+      <div className="flex items-baseline gap-4 md:gap-12 w-full">
+        <span className="font-mono text-xs text-muted-foreground">0{index + 1}</span>
+        <h3 className="text-3xl md:text-5xl font-display font-light group-hover:pl-4 transition-all duration-300 ease-out">
+          {title}
+        </h3>
+      </div>
+      
+      <div className="flex items-center gap-8 md:gap-16 shrink-0">
+        <ArrowDown className="w-6 h-6 opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 rotate-45" />
+      </div>
+    </motion.div>
+  );
+}
+
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
-  
-  const [activeProject, setActiveProject] = useState<number | null>(null);
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  
-  const springConfig = { damping: 20, stiffness: 300, mass: 0.5 };
-  const springX = useSpring(mouseX, springConfig);
-  const springY = useSpring(mouseY, springConfig);
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      mouseX.set(e.clientX);
-      mouseY.set(e.clientY);
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [mouseX, mouseY]);
 
   return (
     <div ref={containerRef} className="min-h-screen bg-background text-foreground selection:bg-foreground selection:text-background relative">
       
-      {/* Floating Project Image */}
-      <motion.div 
-        className="fixed top-0 left-0 w-[300px] h-[400px] pointer-events-none z-50 hidden md:block overflow-hidden shadow-lg"
-        style={{ 
-          x: springX, 
-          y: springY,
-          translateX: "-50%",
-          translateY: "-50%",
-          opacity: activeProject !== null ? 1 : 0
-        }}
-      >
-        {projects.map((project, i) => (
-          <motion.img
-            key={i}
-            src={project.image}
-            alt={project.title}
-            className="absolute top-0 left-0 w-full h-full object-cover"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ 
-              opacity: activeProject === i ? 1 : 0,
-              scale: activeProject === i ? 1 : 0.8
-            }}
-            transition={{ duration: 0.4 }}
-          />
-        ))}
-      </motion.div>
-
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 p-6 md:p-10 flex justify-between items-center z-40 mix-blend-difference text-white">
+      <nav className="fixed top-0 left-0 right-0 p-6 md:p-10 flex justify-between items-center z-40 bg-white/80 backdrop-blur-md border-b border-border">
         <span className="font-display font-bold tracking-tight text-xl">ALEXANDER</span>
         <div className="flex gap-6 text-sm font-medium">
           <a href="#work" className="hover:opacity-70 transition-opacity">WORK</a>
@@ -88,12 +61,9 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative h-screen w-full flex flex-col justify-center px-6 md:px-12 overflow-hidden">
-        <Suspense fallback={null}>
-          <ThreeScene />
-        </Suspense>
+      <section className="relative h-screen w-full flex flex-col justify-center px-6 md:px-12 pt-20 overflow-hidden">
         
-        <div className="z-10 mt-20">
+        <div className="z-10">
           <motion.h1 
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
@@ -122,12 +92,12 @@ export default function Home() {
           transition={{ delay: 1, duration: 1 }}
           className="absolute bottom-10 right-6 md:right-12 flex flex-col items-center gap-2"
         >
-          <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground writing-vertical-rl">Scroll</span>
+          <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Scroll</span>
           <ArrowDown className="w-4 h-4 text-muted-foreground animate-bounce" />
         </motion.div>
       </section>
 
-      {/* Editorial / About Section */}
+      {/* About Section */}
       <section id="about" className="py-32 px-6 md:px-12 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
           <div className="md:col-span-4">
@@ -155,21 +125,15 @@ export default function Home() {
               <span className="font-mono text-xs text-muted-foreground">(2022 — 2024)</span>
            </div>
            
-           <div className="flex flex-col relative z-10" onMouseLeave={() => setActiveProject(null)}>
+           <div className="flex flex-col relative z-10">
              {projects.map((project, i) => (
-               <div 
-                 key={i} 
-                 onMouseEnter={() => setActiveProject(i)}
-                 className="relative bg-background/50 backdrop-blur-[2px]"
-               >
-                 <ProjectItem {...project} index={i} />
-               </div>
+               <ProjectItem key={i} title={project.title} index={i} />
              ))}
            </div>
         </div>
       </section>
 
-      {/* Interactive 3D Lab Section */}
+      {/* Interactive Lab Section */}
       <section className="py-32 px-6 md:px-12 bg-secondary/10">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div>
@@ -179,10 +143,10 @@ export default function Home() {
               Exploring the boundaries of WebGL and creative coding. Interactions that feel tangible in a digital space.
             </p>
           </div>
-          <div className="h-[500px] w-full bg-white rounded-none border border-border">
-            <Suspense fallback={<div className="w-full h-full bg-gradient-to-br from-white via-gray-50 to-gray-100" />}>
-              <InteractiveShape />
-            </Suspense>
+          <div className="h-[500px] w-full bg-gradient-to-br from-white via-gray-50 to-gray-100 border border-border flex items-center justify-center">
+            <div className="text-center text-muted-foreground font-display">
+              <div className="text-lg">Interactive Element</div>
+            </div>
           </div>
         </div>
       </section>
