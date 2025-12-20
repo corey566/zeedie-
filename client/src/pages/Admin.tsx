@@ -45,14 +45,26 @@ export default function Admin() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Link href="/">
-            <button className="flex items-center gap-2 text-black/60 hover:text-black mb-8 transition-colors" data-testid="link-back-home">
-              <ArrowLeft className="w-5 h-5" /> Back to Site
+          <div className="flex justify-between items-center">
+            <Link href="/">
+              <button className="flex items-center gap-2 text-black/60 hover:text-black mb-8 transition-colors" data-testid="link-back-home">
+                <ArrowLeft className="w-5 h-5" /> Back to Site
+              </button>
+            </Link>
+            
+            <button
+              onClick={() => {
+                localStorage.removeItem('adminToken');
+                window.location.href = '/admin/login';
+              }}
+              className="flex items-center gap-2 text-black/60 hover:text-red-600 mb-8 transition-colors"
+            >
+              Logout
             </button>
-          </Link>
+          </div>
 
           <h1 className="font-display text-5xl md:text-7xl mt-4 mb-8 leading-[0.9] tracking-tighter">
-            Admin <span className="text-black/40">Panel</span>
+            Code <span className="text-black/40">Captain</span>
           </h1>
         </motion.div>
 
@@ -165,6 +177,16 @@ function ProfileEditor() {
             onChange={(e) => setFormData({ ...data, email: e.target.value })}
             className="w-full px-4 py-3 rounded-xl border border-black/10 focus:border-black focus:outline-none"
             data-testid="input-email"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-black/60 mb-2">Profile Image URL</label>
+          <input
+            type="text"
+            value={data?.profileImage || ''}
+            onChange={(e) => setFormData({ ...data, profileImage: e.target.value })}
+            className="w-full px-4 py-3 rounded-xl border border-black/10 focus:border-black focus:outline-none"
+            data-testid="input-profile-image"
           />
         </div>
         <div>

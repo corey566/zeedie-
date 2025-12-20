@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { AUTH_CONFIG } from "./auth-config";
 import { 
   insertProfileSchema,
   insertProjectSchema,
@@ -11,12 +12,42 @@ import {
   insertFooterLinkSchema
 } from "@shared/schema";
 import { z } from "zod";
+import crypto from "crypto";
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
   
+  // Admin authentication routes
+  app.post("/api/admin/login", async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      
+      if (username === AUTH_CONFIG.username && password === AUTH_CONFIG.password) {
+        const token = crypto.randomBytes(32).toString('hex');
+        res.json({ token, success: true });
+      } else {
+        res.status(401).json({ error: "Invalid credentials" });
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Login failed" });
+    }
+  });
+
+  app.get("/api/admin/verify", async (req, res) => {
+    try {
+      const token = req.headers.authorization?.replace('Bearer ', '');
+      if (token && token.length === 64) {
+        res.json({ valid: true });
+      } else {
+        res.status(401).json({ error: "Invalid token" });
+      }
+    } catch (error) {
+      res.status(401).json({ error: "Verification failed" });
+    }
+  });
+
   // Profile routes
   app.get("/api/profile", async (_req, res) => {
     try {
@@ -122,6 +153,15 @@ export async function registerRoutes(
   app.get("/api/blog", async (_req, res) => {
     try {
       const posts = await storage.getPublishedBlogPosts();
+      res.json(posts);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch blog posts" });
+    }
+  });
+
+  app.get("/api/blog/all", async (_req, res) => {
+    try {
+      const posts = await storage.getAllBlogPosts();
       res.json(posts);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch blog posts" });

@@ -29,10 +29,11 @@ function useSEO(title: string, description: string) {
 import Blog from "@/pages/Blog";
 import BlogPost from "@/pages/BlogPost";
 import Admin from "@/pages/Admin";
+import AdminLogin from "@/pages/AdminLogin"; // Import AdminLogin component
 
 function Router() {
   useSEO("ZEEDIE | Creative Engineer", "Portfolio of ZEEDIE - Full Stack Developer & UI/UX Specialist");
-  
+
   return (
     <Switch>
       <Route path="/" component={Home} />
@@ -43,7 +44,40 @@ function Router() {
       <Route path="/blog" component={Blog} />
       <Route path="/blog/:id" component={BlogPost} />
       <Route path="/contact" component={Contact} />
-      <Route path="/admin" component={Admin} />
+      {/* Add login route */}
+      <Route path="/admin/login" component={AdminLogin} />
+      {/* Protect admin route */}
+      <Route path="/admin">
+        {() => {
+          const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+
+          useEffect(() => {
+            const token = localStorage.getItem('adminToken');
+            if (!token) {
+              setIsAuthenticated(false);
+              return;
+            }
+
+            fetch('/api/admin/verify', {
+              headers: { 'Authorization': `Bearer ${token}` }
+            })
+              .then(res => {
+                if (res.ok) {
+                  setIsAuthenticated(true);
+                } else {
+                  setIsAuthenticated(false);
+                }
+              })
+              .catch(() => setIsAuthenticated(false));
+          }, []);
+
+          if (isAuthenticated === null) {
+            return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+          }
+
+          return isAuthenticated ? <Admin /> : <Redirect to="/admin/login" />;
+        }}
+      </Route>
       <Route component={NotFound} />
     </Switch>
   );

@@ -29,7 +29,7 @@ export async function fetchFeaturedProjects() {
 }
 
 export async function fetchBlogPosts() {
-  const res = await fetch(`${API_BASE}/blog`);
+  const res = await fetch('/api/blog/all');
   if (!res.ok) throw new Error('Failed to fetch blog posts');
   return res.json();
 }
