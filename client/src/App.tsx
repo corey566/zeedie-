@@ -1,9 +1,9 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, Redirect, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Download, CheckCircle2 } from "lucide-react";
+import { Download, CheckCircle2, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
@@ -15,6 +15,10 @@ import Contact from "@/pages/Contact";
 import Navigation from "@/components/Navigation";
 import CursorTracker from "@/components/CursorTracker";
 import Loader from "@/components/Loader";
+import Blog from "@/pages/Blog";
+import BlogPost from "@/pages/BlogPost";
+import Admin from "@/pages/Admin";
+import AdminLogin from "@/pages/AdminLogin";
 
 function useSEO(title: string, description: string) {
   useEffect(() => {
@@ -26,10 +30,54 @@ function useSEO(title: string, description: string) {
   }, [title, description]);
 }
 
-import Blog from "@/pages/Blog";
-import BlogPost from "@/pages/BlogPost";
-import Admin from "@/pages/Admin";
-import AdminLogin from "@/pages/AdminLogin"; // Import AdminLogin component
+function ProtectedAdminRoute() {
+  const [, setLocation] = useLocation();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem('adminToken');
+    if (!token) {
+      setIsAuthenticated(false);
+      return;
+    }
+
+    fetch('/api/admin/verify', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+      .then(res => {
+        if (res.ok) {
+          setIsAuthenticated(true);
+        } else {
+          localStorage.removeItem('adminToken');
+          setIsAuthenticated(false);
+        }
+      })
+      .catch(() => {
+        localStorage.removeItem('adminToken');
+        setIsAuthenticated(false);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (isAuthenticated === false) {
+      setLocation('/admin/login');
+    }
+  }, [isAuthenticated, setLocation]);
+
+  if (isAuthenticated === null) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f2f2f2]">
+        <Loader2 className="w-8 h-8 animate-spin text-black/60" />
+      </div>
+    );
+  }
+
+  if (isAuthenticated === false) {
+    return null;
+  }
+
+  return <Admin />;
+}
 
 function Router() {
   useSEO("ZEEDIE | Creative Engineer", "Portfolio of ZEEDIE - Full Stack Developer & UI/UX Specialist");
@@ -44,40 +92,8 @@ function Router() {
       <Route path="/blog" component={Blog} />
       <Route path="/blog/:id" component={BlogPost} />
       <Route path="/contact" component={Contact} />
-      {/* Add login route */}
       <Route path="/admin/login" component={AdminLogin} />
-      {/* Protect admin route */}
-      <Route path="/admin">
-        {() => {
-          const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-
-          useEffect(() => {
-            const token = localStorage.getItem('adminToken');
-            if (!token) {
-              setIsAuthenticated(false);
-              return;
-            }
-
-            fetch('/api/admin/verify', {
-              headers: { 'Authorization': `Bearer ${token}` }
-            })
-              .then(res => {
-                if (res.ok) {
-                  setIsAuthenticated(true);
-                } else {
-                  setIsAuthenticated(false);
-                }
-              })
-              .catch(() => setIsAuthenticated(false));
-          }, []);
-
-          if (isAuthenticated === null) {
-            return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-          }
-
-          return isAuthenticated ? <Admin /> : <Redirect to="/admin/login" />;
-        }}
-      </Route>
+      <Route path="/admin" component={ProtectedAdminRoute} />
       <Route component={NotFound} />
     </Switch>
   );
