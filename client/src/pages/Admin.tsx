@@ -21,6 +21,7 @@ import {
   deleteProjectSection
 } from '@/lib/api';
 import Footer from '@/components/Footer';
+import RichTextEditor from '@/components/RichTextEditor';
 
 function StatusMessage({ type, message }: { type: 'success' | 'error'; message: string }) {
   return (
@@ -621,14 +622,13 @@ function BlogEditor() {
             className="w-full px-4 py-3 rounded-xl border border-black/10 focus:border-black focus:outline-none"
             data-testid="input-post-excerpt"
           />
-          <textarea
-            placeholder="Full content"
-            value={formData?.content || ''}
-            onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-            rows={6}
-            className="w-full px-4 py-3 rounded-xl border border-black/10 focus:border-black focus:outline-none"
-            data-testid="input-post-content"
-          />
+          <div data-testid="input-post-content">
+            <label className="text-sm text-black/60 mb-2 block">Full Content</label>
+            <RichTextEditor
+              content={formData?.content || ''}
+              onChange={(content) => setFormData({ ...formData, content })}
+            />
+          </div>
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
@@ -1800,12 +1800,13 @@ function ProjectSectionsManager({ projectId }: { projectId: string }) {
             className="w-full px-4 py-3 rounded-xl border border-black/10 focus:border-black focus:outline-none"
           />
 
-          <textarea
-            placeholder="Section Content *"
-            value={formData?.content || ''}
-            onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-            className="w-full px-4 py-3 rounded-xl border border-black/10 focus:border-black focus:outline-none min-h-[200px]"
-          />
+          <div>
+            <label className="text-sm text-black/60 mb-2 block">Section Content *</label>
+            <RichTextEditor
+              content={formData?.content || ''}
+              onChange={(content) => setFormData({ ...formData, content })}
+            />
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <input
