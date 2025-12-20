@@ -59,7 +59,7 @@
   --input: 0 0% 90%;
   --ring: 0 0% 4%;
   
-  --radius: 0rem; /* Sharp edges for Swiss feel */
+  --radius: 1.5rem; /* Rounded modern feel */
 }
 
 @layer base {
