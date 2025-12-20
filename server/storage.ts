@@ -70,6 +70,7 @@ export interface IStorage {
   getAllSkills(): Promise<Skill[]>;
   getSkillsByCategory(category: string): Promise<Skill[]>;
   createSkill(skill: InsertSkill): Promise<Skill>;
+  updateSkill(id: string, skill: Partial<InsertSkill>): Promise<Skill | undefined>;
   deleteSkill(id: string): Promise<boolean>;
 
   // Socials methods
@@ -222,6 +223,11 @@ export class DatabaseStorage implements IStorage {
   async createSkill(skill: InsertSkill): Promise<Skill> {
     const [created] = await db.insert(skills).values(skill).returning();
     return created;
+  }
+
+  async updateSkill(id: string, skill: Partial<InsertSkill>): Promise<Skill | undefined> {
+    const [updated] = await db.update(skills).set(skill).where(eq(skills.id, id)).returning();
+    return updated;
   }
 
   async deleteSkill(id: string): Promise<boolean> {

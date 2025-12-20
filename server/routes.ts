@@ -265,6 +265,24 @@ export async function registerRoutes(
     }
   });
 
+  app.put("/api/skills/:id", async (req, res) => {
+    try {
+      const data = insertSkillSchema.partial().parse(req.body);
+      const skill = await storage.updateSkill(req.params.id, data);
+      if (!skill) {
+        res.status(404).json({ error: "Skill not found" });
+        return;
+      }
+      res.json(skill);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ error: error.errors });
+      } else {
+        res.status(500).json({ error: "Failed to update skill" });
+      }
+    }
+  });
+
   app.delete("/api/skills/:id", async (req, res) => {
     try {
       const success = await storage.deleteSkill(req.params.id);
