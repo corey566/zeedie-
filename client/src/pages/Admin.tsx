@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Save, Plus, Trash2, RefreshCw, User, Briefcase, FolderOpen, FileText, Award, Link2, Loader2, CheckCircle, AlertCircle, Edit, Settings, Linkedin, Github } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Trash2, RefreshCw, User, Briefcase, FolderOpen, FileText, Award, Link2, Loader2, CheckCircle, AlertCircle, Edit, Settings, Linkedin, Github, LayoutGrid } from 'lucide-react';
 import { Link } from 'wouter';
 import { 
   fetchProfile, 
@@ -11,6 +11,7 @@ import {
   fetchSkills, 
   fetchSocials,
   fetchLinkedinPosts,
+  fetchAboutBlocks,
   syncGithubContributions
 } from '@/lib/api';
 
@@ -23,7 +24,7 @@ function StatusMessage({ type, message }: { type: 'success' | 'error'; message: 
   );
 }
 
-type TabType = 'profile' | 'projects' | 'blog' | 'experience' | 'skills' | 'socials' | 'linkedin' | 'settings';
+type TabType = 'profile' | 'about' | 'projects' | 'blog' | 'experience' | 'skills' | 'socials' | 'linkedin' | 'settings';
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState<TabType>('profile');
@@ -31,6 +32,7 @@ export default function Admin() {
 
   const tabs = [
     { id: 'profile', label: 'Profile', icon: User },
+    { id: 'about', label: 'About Page', icon: LayoutGrid },
     { id: 'projects', label: 'Projects', icon: FolderOpen },
     { id: 'blog', label: 'Blog Posts', icon: FileText },
     { id: 'experience', label: 'Experience', icon: Briefcase },
@@ -91,6 +93,7 @@ export default function Admin() {
 
         <div className="bg-white p-8 md:p-12 rounded-[2.5rem] shadow-sm">
           {activeTab === 'profile' && <ProfileEditor />}
+          {activeTab === 'about' && <AboutBlocksEditor />}
           {activeTab === 'projects' && <ProjectsEditor />}
           {activeTab === 'blog' && <BlogEditor />}
           {activeTab === 'experience' && <ExperienceEditor />}
@@ -1483,6 +1486,221 @@ function SettingsEditor() {
             <span className="font-mono bg-green-100 text-green-700 px-2 py-1 rounded">Active</span>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function AboutBlocksEditor() {
+  const queryClient = useQueryClient();
+  const { data: blocks = [], isLoading } = useQuery({ queryKey: ['about-blocks'], queryFn: fetchAboutBlocks });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [formData, setFormData] = useState<any>(null);
+  const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  const createMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const res = await fetch('/api/about-blocks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Failed to create');
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['about-blocks'] });
+      setFormData(null);
+      setEditingId(null);
+      setStatus({ type: 'success', message: 'Block added successfully!' });
+    },
+    onError: () => setStatus({ type: 'error', message: 'Failed to add block.' }),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+      const res = await fetch(`/api/about-blocks/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Failed to update');
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['about-blocks'] });
+      setFormData(null);
+      setEditingId(null);
+      setStatus({ type: 'success', message: 'Block updated successfully!' });
+    },
+    onError: () => setStatus({ type: 'error', message: 'Failed to update block.' }),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetch(`/api/about-blocks/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed to delete');
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['about-blocks'] });
+      setStatus({ type: 'success', message: 'Block deleted successfully!' });
+    },
+    onError: () => setStatus({ type: 'error', message: 'Failed to delete block.' }),
+  });
+
+  const handleEdit = (block: any) => {
+    setEditingId(block.id);
+    setFormData({ ...block });
+  };
+
+  const handleSave = () => {
+    if (!formData?.title?.trim() || !formData?.content?.trim()) {
+      setStatus({ type: 'error', message: 'Title and content are required.' });
+      return;
+    }
+    if (editingId === 'new') {
+      createMutation.mutate(formData);
+    } else {
+      updateMutation.mutate({ id: editingId!, data: formData });
+    }
+  };
+
+  if (isLoading) return <div className="flex items-center gap-2"><Loader2 className="w-5 h-5 animate-spin" /> Loading...</div>;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-display">About Page Blocks</h2>
+        <button
+          onClick={() => {
+            setEditingId('new');
+            setFormData({ title: '', content: '', style: 'light', imageUrl: '', imagePosition: '', order: blocks.length });
+            setStatus(null);
+          }}
+          className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-full font-medium hover:bg-black/80"
+          data-testid="button-add-about-block"
+        >
+          <Plus className="w-4 h-4" /> Add Block
+        </button>
+      </div>
+
+      <p className="text-black/60 text-sm mb-4">
+        Add content blocks to your About page. You can add text sections with optional images positioned on any side.
+      </p>
+
+      {status && <StatusMessage type={status.type} message={status.message} />}
+
+      {editingId && (
+        <div className="bg-black/5 p-6 rounded-2xl space-y-4 mb-6">
+          <input
+            type="text"
+            placeholder="Block Title *"
+            value={formData?.title || ''}
+            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+            className="w-full px-4 py-3 rounded-xl border border-black/10 focus:border-black focus:outline-none"
+            data-testid="input-about-title"
+          />
+          <textarea
+            placeholder="Content *"
+            value={formData?.content || ''}
+            onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+            className="w-full px-4 py-3 rounded-xl border border-black/10 focus:border-black focus:outline-none min-h-[120px]"
+            data-testid="input-about-content"
+          />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="text-sm text-black/60 mb-1 block">Style</label>
+              <select
+                value={formData?.style || 'light'}
+                onChange={(e) => setFormData({ ...formData, style: e.target.value })}
+                className="w-full px-4 py-3 rounded-xl border border-black/10 focus:border-black focus:outline-none"
+                data-testid="select-about-style"
+              >
+                <option value="light">Light Background</option>
+                <option value="dark">Dark Background</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-sm text-black/60 mb-1 block">Image URL (optional)</label>
+              <input
+                type="url"
+                placeholder="https://..."
+                value={formData?.imageUrl || ''}
+                onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                className="w-full px-4 py-3 rounded-xl border border-black/10 focus:border-black focus:outline-none"
+                data-testid="input-about-image"
+              />
+            </div>
+            <div>
+              <label className="text-sm text-black/60 mb-1 block">Image Position</label>
+              <select
+                value={formData?.imagePosition || ''}
+                onChange={(e) => setFormData({ ...formData, imagePosition: e.target.value })}
+                className="w-full px-4 py-3 rounded-xl border border-black/10 focus:border-black focus:outline-none"
+                data-testid="select-about-image-position"
+              >
+                <option value="">No Image</option>
+                <option value="top">Top</option>
+                <option value="bottom">Bottom</option>
+                <option value="left">Left</option>
+                <option value="right">Right</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={handleSave}
+              disabled={createMutation.isPending || updateMutation.isPending || !formData?.title?.trim() || !formData?.content?.trim()}
+              className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-full font-medium disabled:opacity-50"
+              data-testid="button-save-about-block"
+            >
+              {(createMutation.isPending || updateMutation.isPending) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              {editingId === 'new' ? 'Add' : 'Update'}
+            </button>
+            <button
+              onClick={() => { setEditingId(null); setFormData(null); setStatus(null); }}
+              className="px-4 py-2 bg-black/10 rounded-full font-medium"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="space-y-4">
+        {blocks.map((block: any) => (
+          <div key={block.id} className={`p-6 rounded-2xl ${block.style === 'dark' ? 'bg-black text-white' : 'bg-black/5'}`}>
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1">
+                <h3 className="font-bold text-lg mb-2">{block.title}</h3>
+                <p className={`text-sm line-clamp-2 ${block.style === 'dark' ? 'text-white/70' : 'text-black/60'}`}>{block.content}</p>
+                <div className="flex gap-2 mt-2 text-xs">
+                  {block.imageUrl && <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded">Image: {block.imagePosition}</span>}
+                  <span className={`px-2 py-1 rounded ${block.style === 'dark' ? 'bg-white/20' : 'bg-black/10'}`}>Order: {block.order}</span>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleEdit(block)}
+                  className={`p-2 rounded-lg ${block.style === 'dark' ? 'hover:bg-white/10' : 'hover:bg-black/10'}`}
+                >
+                  <Edit className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => deleteMutation.mutate(block.id)}
+                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+        {blocks.length === 0 && (
+          <div className="text-center py-12 text-black/40">
+            No blocks yet. Add your first About page block above.
+          </div>
+        )}
       </div>
     </div>
   );

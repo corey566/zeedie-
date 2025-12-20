@@ -1,28 +1,10 @@
 import { motion } from 'framer-motion';
-import { useRef, useEffect } from 'react';
-import gsap from 'gsap';
 import { ChevronRight, Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchExperience } from '@/lib/api';
 
 export default function Experience() {
-  const containerRef = useRef<HTMLDivElement>(null);
   const { data: experiences = [], isLoading } = useQuery({ queryKey: ['experience'], queryFn: fetchExperience });
-
-  useEffect(() => {
-    if (containerRef.current && experiences.length > 0) {
-      gsap.from(containerRef.current.querySelectorAll('.exp-card'), {
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: 'top 80%',
-        },
-        opacity: 0,
-        x: -50,
-        stagger: 0.2,
-        duration: 0.6,
-      });
-    }
-  }, [experiences]);
 
   if (isLoading) {
     return (
@@ -45,7 +27,7 @@ export default function Experience() {
           <h1 className="font-display text-5xl md:text-7xl mt-4 mb-8 leading-[0.9] tracking-tighter">Professional <span className="text-black/40">Experience</span></h1>
         </motion.div>
 
-        <div ref={containerRef} className="space-y-6">
+        <div className="space-y-6">
           {experiences.map((exp: any, i: number) => (
             <motion.div
               key={exp.id || i}

@@ -9,7 +9,9 @@ import {
   insertExperienceSchema,
   insertSkillSchema,
   insertSocialSchema,
-  insertFooterLinkSchema
+  insertFooterLinkSchema,
+  insertAboutBlockSchema,
+  insertLinkedinPostSchema
 } from "@shared/schema";
 import { z } from "zod";
 import crypto from "crypto";
@@ -433,6 +435,56 @@ export async function registerRoutes(
     }
   });
 
+  // About blocks routes
+  app.get("/api/about-blocks", async (_req, res) => {
+    try {
+      const blocks = await storage.getAllAboutBlocks();
+      res.json(blocks);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch about blocks" });
+    }
+  });
+
+  app.post("/api/about-blocks", async (req, res) => {
+    try {
+      const data = insertAboutBlockSchema.parse(req.body);
+      const block = await storage.createAboutBlock(data);
+      res.status(201).json(block);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ error: error.errors });
+      } else {
+        res.status(500).json({ error: "Failed to create about block" });
+      }
+    }
+  });
+
+  app.put("/api/about-blocks/:id", async (req, res) => {
+    try {
+      const block = await storage.updateAboutBlock(req.params.id, req.body);
+      if (!block) {
+        res.status(404).json({ error: "About block not found" });
+        return;
+      }
+      res.json(block);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update about block" });
+    }
+  });
+
+  app.delete("/api/about-blocks/:id", async (req, res) => {
+    try {
+      const success = await storage.deleteAboutBlock(req.params.id);
+      if (!success) {
+        res.status(404).json({ error: "About block not found" });
+        return;
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete about block" });
+    }
+  });
+
   // LinkedIn posts routes
   app.get("/api/linkedin-posts", async (_req, res) => {
     try {
@@ -440,6 +492,46 @@ export async function registerRoutes(
       res.json(posts);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch LinkedIn posts" });
+    }
+  });
+
+  app.post("/api/linkedin-posts", async (req, res) => {
+    try {
+      const data = insertLinkedinPostSchema.parse(req.body);
+      const post = await storage.createLinkedinPost(data);
+      res.status(201).json(post);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ error: error.errors });
+      } else {
+        res.status(500).json({ error: "Failed to create LinkedIn post" });
+      }
+    }
+  });
+
+  app.put("/api/linkedin-posts/:id", async (req, res) => {
+    try {
+      const post = await storage.updateLinkedinPost(req.params.id, req.body);
+      if (!post) {
+        res.status(404).json({ error: "LinkedIn post not found" });
+        return;
+      }
+      res.json(post);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update LinkedIn post" });
+    }
+  });
+
+  app.delete("/api/linkedin-posts/:id", async (req, res) => {
+    try {
+      const success = await storage.deleteLinkedinPost(req.params.id);
+      if (!success) {
+        res.status(404).json({ error: "LinkedIn post not found" });
+        return;
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete LinkedIn post" });
     }
   });
 

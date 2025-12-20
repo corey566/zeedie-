@@ -19,6 +19,8 @@ import {
   type InsertLinkedinPost,
   type GithubContribution,
   type InsertGithubContribution,
+  type AboutBlock,
+  type InsertAboutBlock,
   users,
   profile,
   projects,
@@ -28,7 +30,8 @@ import {
   socials,
   footerLinks,
   linkedinPosts,
-  githubContributions
+  githubContributions,
+  aboutBlocks
 } from "@shared/schema";
 import { db } from "@db";
 import { eq, desc } from "drizzle-orm";
@@ -87,11 +90,19 @@ export interface IStorage {
   // LinkedIn posts methods
   getAllLinkedinPosts(): Promise<LinkedinPost[]>;
   createLinkedinPost(post: InsertLinkedinPost): Promise<LinkedinPost>;
+  updateLinkedinPost(id: string, post: Partial<InsertLinkedinPost>): Promise<LinkedinPost | undefined>;
+  deleteLinkedinPost(id: string): Promise<boolean>;
 
   // GitHub contributions methods
   getAllGithubContributions(): Promise<GithubContribution[]>;
   createGithubContribution(contribution: InsertGithubContribution): Promise<GithubContribution>;
   clearGithubContributions(): Promise<boolean>;
+
+  // About blocks methods
+  getAllAboutBlocks(): Promise<AboutBlock[]>;
+  createAboutBlock(block: InsertAboutBlock): Promise<AboutBlock>;
+  updateAboutBlock(id: string, block: Partial<InsertAboutBlock>): Promise<AboutBlock | undefined>;
+  deleteAboutBlock(id: string): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -280,6 +291,16 @@ export class DatabaseStorage implements IStorage {
     return created;
   }
 
+  async updateLinkedinPost(id: string, post: Partial<InsertLinkedinPost>): Promise<LinkedinPost | undefined> {
+    const [updated] = await db.update(linkedinPosts).set(post).where(eq(linkedinPosts.id, id)).returning();
+    return updated;
+  }
+
+  async deleteLinkedinPost(id: string): Promise<boolean> {
+    const result = await db.delete(linkedinPosts).where(eq(linkedinPosts.id, id));
+    return result.rowCount ? result.rowCount > 0 : false;
+  }
+
   // GitHub contributions methods
   async getAllGithubContributions(): Promise<GithubContribution[]> {
     return db.select().from(githubContributions).orderBy(githubContributions.date);
@@ -293,6 +314,26 @@ export class DatabaseStorage implements IStorage {
   async clearGithubContributions(): Promise<boolean> {
     await db.delete(githubContributions);
     return true;
+  }
+
+  // About blocks methods
+  async getAllAboutBlocks(): Promise<AboutBlock[]> {
+    return db.select().from(aboutBlocks).orderBy(aboutBlocks.order);
+  }
+
+  async createAboutBlock(block: InsertAboutBlock): Promise<AboutBlock> {
+    const [created] = await db.insert(aboutBlocks).values(block).returning();
+    return created;
+  }
+
+  async updateAboutBlock(id: string, block: Partial<InsertAboutBlock>): Promise<AboutBlock | undefined> {
+    const [updated] = await db.update(aboutBlocks).set(block).where(eq(aboutBlocks.id, id)).returning();
+    return updated;
+  }
+
+  async deleteAboutBlock(id: string): Promise<boolean> {
+    const result = await db.delete(aboutBlocks).where(eq(aboutBlocks.id, id));
+    return result.rowCount ? result.rowCount > 0 : false;
   }
 }
 

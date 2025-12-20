@@ -81,3 +81,9 @@ export async function syncGithubContributions() {
   if (!res.ok) throw new Error('Failed to sync GitHub contributions');
   return res.json();
 }
+
+export async function fetchAboutBlocks() {
+  const res = await fetch(`${API_BASE}/about-blocks`);
+  if (!res.ok) throw new Error('Failed to fetch about blocks');
+  return res.json();
+}

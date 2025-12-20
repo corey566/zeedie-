@@ -140,6 +140,22 @@ export const insertLinkedinPostSchema = createInsertSchema(linkedinPosts).omit({
 export type InsertLinkedinPost = z.infer<typeof insertLinkedinPostSchema>;
 export type LinkedinPost = typeof linkedinPosts.$inferSelect;
 
+// About Page Blocks
+export const aboutBlocks = pgTable("about_blocks", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  style: text("style").notNull().default('light'), // 'light' or 'dark'
+  imageUrl: text("image_url"),
+  imagePosition: text("image_position"), // 'top', 'bottom', 'left', 'right'
+  order: integer("order").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertAboutBlockSchema = createInsertSchema(aboutBlocks).omit({ id: true, createdAt: true });
+export type InsertAboutBlock = z.infer<typeof insertAboutBlockSchema>;
+export type AboutBlock = typeof aboutBlocks.$inferSelect;
+
 // GitHub Contributions (cached from API)
 export const githubContributions = pgTable("github_contributions", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
