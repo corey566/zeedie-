@@ -128,6 +128,9 @@ function FloatingCV() {
 
 function App() {
   const [loading, setLoading] = useState(true);
+  const [location] = useLocation();
+  
+  const isAdminPage = location.startsWith('/admin');
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -135,9 +138,9 @@ function App() {
         {loading && <Loader onComplete={() => setLoading(false)} />}
         <Toaster />
         <CursorTracker />
-        <Navigation />
+        {!isAdminPage && <Navigation />}
         <Router />
-        <FloatingCV />
+        {!isAdminPage && <FloatingCV />}
       </TooltipProvider>
     </QueryClientProvider>
   );
