@@ -1,42 +1,16 @@
 import { motion } from 'framer-motion';
 import { useRef, useEffect } from 'react';
 import gsap from 'gsap';
-import { ChevronRight } from 'lucide-react';
-
-const experiences = [
-  {
-    role: 'In-House Developer & Digital Media Manager',
-    company: 'Sterling Carter Technology Distributors (SCTDJM)',
-    location: 'Kingston, Jamaica',
-    period: '2021 – 2023',
-    highlights: [
-      'Maintained and developed SaaS platforms: zimozo.com / zimozo.lk',
-      'Built card.lk (leading digital vCard platform in Sri Lanka)',
-      'Developed Hola.lk geolocation-based HRM with real-time GPS tracking',
-      'Integrated major U.S. distributor APIs (Ingram Micro, HP USA, Clover)',
-      'Invented Ink Coverage Estimator (adopted by large printing companies)',
-    ],
-  },
-  {
-    role: 'Freelance Full-Stack Developer',
-    company: 'Upwork & Fiverr',
-    location: 'Remote',
-    period: '2023 – Present',
-    highlights: [
-      'Delivered WordPress, Laravel, and custom ERP solutions',
-      'Built CRM dashboards and admin panels',
-      'Integrated Meta APIs for marketing automation',
-      'Developed POS systems using n8n automation',
-      'Consistently rated 5-stars by international clients',
-    ],
-  },
-];
+import { ChevronRight, Loader2 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { fetchExperience } from '@/lib/api';
 
 export default function Experience() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const { data: experiences = [], isLoading } = useQuery({ queryKey: ['experience'], queryFn: fetchExperience });
 
   useEffect(() => {
-    if (containerRef.current) {
+    if (containerRef.current && experiences.length > 0) {
       gsap.from(containerRef.current.querySelectorAll('.exp-card'), {
         scrollTrigger: {
           trigger: containerRef.current,
@@ -48,7 +22,15 @@ export default function Experience() {
         duration: 0.6,
       });
     }
-  }, []);
+  }, [experiences]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#f2f2f2] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-black/60" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f2f2f2] text-foreground font-sans pt-32 px-4 md:px-12 pb-20">
@@ -64,11 +46,12 @@ export default function Experience() {
         </motion.div>
 
         <div ref={containerRef} className="space-y-6">
-          {experiences.map((exp, i) => (
+          {experiences.map((exp: any, i: number) => (
             <motion.div
-              key={i}
+              key={exp.id || i}
               className="exp-card group p-8 md:p-12 bg-white rounded-[2.5rem] shadow-sm hover:shadow-lg transition-all duration-300"
               whileHover={{ scale: 1.01 }}
+              data-testid={`card-experience-${exp.id || i}`}
             >
               <div className="flex flex-col md:flex-row items-start justify-between mb-8 gap-4">
                 <div className="flex-1">
@@ -76,21 +59,23 @@ export default function Experience() {
                   <p className="text-xl text-black/60 font-medium">{exp.company}</p>
                   <p className="text-sm text-black/40 mt-1">{exp.location}</p>
                 </div>
-                <span className="font-mono text-sm bg-black text-white px-4 py-2 rounded-full whitespace-nowrap">{exp.period}</span>
+                <div className="flex items-center gap-2">
+                  {exp.current && (
+                    <span className="font-mono text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">Current</span>
+                  )}
+                  <span className="font-mono text-sm bg-black text-white px-4 py-2 rounded-full whitespace-nowrap">{exp.period}</span>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-8 border-t border-black/5">
-                {exp.highlights.map((highlight, j) => (
+                {(exp.highlights || []).map((highlight: string, j: number) => (
                   <motion.div
                     key={j}
-                    initial={{ opacity: 0, x: -10 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: j * 0.05 }}
-                    className="flex gap-3 text-base text-black/70 p-3 rounded-xl hover:bg-black/5 transition-colors"
+                    className="flex items-start gap-3 group/item"
+                    whileHover={{ x: 5 }}
                   >
-                    <ChevronRight className="w-5 h-5 text-black flex-shrink-0 mt-0.5" />
-                    <span>{highlight}</span>
+                    <ChevronRight className="w-5 h-5 text-black/20 group-hover/item:text-black/60 flex-shrink-0 mt-0.5 transition-colors" />
+                    <span className="text-black/60 group-hover/item:text-black/80 transition-colors">{highlight}</span>
                   </motion.div>
                 ))}
               </div>

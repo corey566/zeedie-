@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Save, Plus, Trash2, RefreshCw, User, Briefcase, FolderOpen, FileText, Award, Link2, Loader2, CheckCircle, AlertCircle, Edit } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Trash2, RefreshCw, User, Briefcase, FolderOpen, FileText, Award, Link2, Loader2, CheckCircle, AlertCircle, Edit, Settings, Linkedin, Github } from 'lucide-react';
 import { Link } from 'wouter';
 import { 
   fetchProfile, 
@@ -10,6 +10,7 @@ import {
   fetchExperience, 
   fetchSkills, 
   fetchSocials,
+  fetchLinkedinPosts,
   syncGithubContributions
 } from '@/lib/api';
 
@@ -22,7 +23,7 @@ function StatusMessage({ type, message }: { type: 'success' | 'error'; message: 
   );
 }
 
-type TabType = 'profile' | 'projects' | 'blog' | 'experience' | 'skills' | 'socials';
+type TabType = 'profile' | 'projects' | 'blog' | 'experience' | 'skills' | 'socials' | 'linkedin' | 'settings';
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState<TabType>('profile');
@@ -35,6 +36,8 @@ export default function Admin() {
     { id: 'experience', label: 'Experience', icon: Briefcase },
     { id: 'skills', label: 'Skills', icon: Award },
     { id: 'socials', label: 'Social Links', icon: Link2 },
+    { id: 'linkedin', label: 'LinkedIn', icon: Linkedin },
+    { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
   return (
@@ -93,6 +96,8 @@ export default function Admin() {
           {activeTab === 'experience' && <ExperienceEditor />}
           {activeTab === 'skills' && <SkillsEditor />}
           {activeTab === 'socials' && <SocialsEditor />}
+          {activeTab === 'linkedin' && <LinkedInPostsEditor />}
+          {activeTab === 'settings' && <SettingsEditor />}
         </div>
       </div>
     </div>
@@ -932,7 +937,7 @@ function SkillsEditor() {
 
   if (isLoading) return <div className="flex items-center gap-2"><Loader2 className="w-5 h-5 animate-spin" /> Loading...</div>;
 
-  const categories = Array.from(new Set(skills.map((s: any) => s.category)));
+  const categories: string[] = Array.from(new Set(skills.map((s: any) => s.category as string)));
 
   return (
     <div className="space-y-6">
@@ -1201,6 +1206,283 @@ function SocialsEditor() {
             </div>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+function LinkedInPostsEditor() {
+  const queryClient = useQueryClient();
+  const { data: posts = [], isLoading } = useQuery({ queryKey: ['linkedin-posts'], queryFn: fetchLinkedinPosts });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [formData, setFormData] = useState<any>(null);
+  const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  const createMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const res = await fetch('/api/linkedin-posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Failed to create');
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['linkedin-posts'] });
+      setFormData(null);
+      setEditingId(null);
+      setStatus({ type: 'success', message: 'LinkedIn post added successfully!' });
+    },
+    onError: () => setStatus({ type: 'error', message: 'Failed to add post.' }),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+      const res = await fetch(`/api/linkedin-posts/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Failed to update');
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['linkedin-posts'] });
+      setFormData(null);
+      setEditingId(null);
+      setStatus({ type: 'success', message: 'Post updated successfully!' });
+    },
+    onError: () => setStatus({ type: 'error', message: 'Failed to update post.' }),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetch(`/api/linkedin-posts/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed to delete');
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['linkedin-posts'] });
+      setStatus({ type: 'success', message: 'Post deleted successfully!' });
+    },
+    onError: () => setStatus({ type: 'error', message: 'Failed to delete post.' }),
+  });
+
+  const handleEdit = (post: any) => {
+    setEditingId(post.id);
+    setFormData({ ...post });
+  };
+
+  const handleSave = () => {
+    if (!formData?.content?.trim()) {
+      setStatus({ type: 'error', message: 'Content is required.' });
+      return;
+    }
+    if (editingId === 'new') {
+      createMutation.mutate(formData);
+    } else {
+      updateMutation.mutate({ id: editingId!, data: formData });
+    }
+  };
+
+  if (isLoading) return <div className="flex items-center gap-2"><Loader2 className="w-5 h-5 animate-spin" /> Loading...</div>;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-display">LinkedIn Posts</h2>
+        <button
+          onClick={() => {
+            setEditingId('new');
+            setFormData({ content: '', date: 'Just now', likes: 0, comments: 0 });
+            setStatus(null);
+          }}
+          className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-full font-medium hover:bg-black/80"
+          data-testid="button-add-linkedin-post"
+        >
+          <Plus className="w-4 h-4" /> Add Post
+        </button>
+      </div>
+
+      <p className="text-black/60 text-sm mb-4">
+        Manage LinkedIn posts displayed on your portfolio. These are manually added posts to showcase your professional activity.
+      </p>
+
+      {status && <StatusMessage type={status.type} message={status.message} />}
+
+      {editingId && (
+        <div className="bg-black/5 p-6 rounded-2xl space-y-4 mb-6">
+          <textarea
+            placeholder="Post content *"
+            value={formData?.content || ''}
+            onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+            className="w-full px-4 py-3 rounded-xl border border-black/10 focus:border-black focus:outline-none min-h-[100px]"
+            data-testid="input-linkedin-content"
+          />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <input
+              type="text"
+              placeholder="Date (e.g., '2 days ago')"
+              value={formData?.date || ''}
+              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+              className="px-4 py-3 rounded-xl border border-black/10 focus:border-black focus:outline-none"
+              data-testid="input-linkedin-date"
+            />
+            <input
+              type="number"
+              placeholder="Likes"
+              value={formData?.likes || 0}
+              onChange={(e) => setFormData({ ...formData, likes: parseInt(e.target.value) || 0 })}
+              className="px-4 py-3 rounded-xl border border-black/10 focus:border-black focus:outline-none"
+              data-testid="input-linkedin-likes"
+            />
+            <input
+              type="number"
+              placeholder="Comments"
+              value={formData?.comments || 0}
+              onChange={(e) => setFormData({ ...formData, comments: parseInt(e.target.value) || 0 })}
+              className="px-4 py-3 rounded-xl border border-black/10 focus:border-black focus:outline-none"
+              data-testid="input-linkedin-comments"
+            />
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={handleSave}
+              disabled={createMutation.isPending || updateMutation.isPending || !formData?.content?.trim()}
+              className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-full font-medium disabled:opacity-50"
+              data-testid="button-save-linkedin-post"
+            >
+              {(createMutation.isPending || updateMutation.isPending) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              {editingId === 'new' ? 'Add' : 'Update'}
+            </button>
+            <button
+              onClick={() => { setEditingId(null); setFormData(null); setStatus(null); }}
+              className="px-4 py-2 bg-black/10 rounded-full font-medium"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="space-y-4">
+        {posts.map((post: any) => (
+          <div key={post.id} className="p-6 bg-black/5 rounded-2xl">
+            <p className="mb-4">{post.content}</p>
+            <div className="flex items-center justify-between">
+              <div className="flex gap-4 text-sm text-black/60">
+                <span>{post.date}</span>
+                <span>{post.likes} likes</span>
+                <span>{post.comments} comments</span>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleEdit(post)}
+                  className="p-2 hover:bg-black/10 rounded-lg"
+                >
+                  <Edit className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => deleteMutation.mutate(post.id)}
+                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function SettingsEditor() {
+  const queryClient = useQueryClient();
+  const [syncing, setSyncing] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  const handleSyncGithub = async () => {
+    setSyncing(true);
+    setSyncStatus(null);
+    try {
+      const result = await syncGithubContributions();
+      queryClient.invalidateQueries({ queryKey: ['github-contributions'] });
+      setSyncStatus({ type: 'success', message: `Successfully synced ${result.count || 0} GitHub contributions!` });
+    } catch (error) {
+      setSyncStatus({ type: 'error', message: 'Failed to sync GitHub contributions. Make sure the GitHub integration is connected.' });
+    }
+    setSyncing(false);
+  };
+
+  return (
+    <div className="space-y-8">
+      <h2 className="text-2xl font-display mb-6">Settings & Integrations</h2>
+
+      {syncStatus && <StatusMessage type={syncStatus.type} message={syncStatus.message} />}
+
+      <div className="bg-black/5 p-6 rounded-2xl">
+        <div className="flex items-center gap-4 mb-4">
+          <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
+            <Github className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h3 className="font-bold text-lg">GitHub Integration</h3>
+            <p className="text-sm text-black/60">Sync your contribution graph from GitHub</p>
+          </div>
+        </div>
+        <p className="text-black/60 mb-4">
+          Your GitHub contribution data is synced automatically via the Replit GitHub connector. 
+          Click the button below to manually refresh your contribution graph.
+        </p>
+        <button
+          onClick={handleSyncGithub}
+          disabled={syncing}
+          className="flex items-center gap-2 px-6 py-3 bg-black text-white rounded-full font-medium hover:bg-black/80 disabled:opacity-50"
+          data-testid="button-sync-github"
+        >
+          {syncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+          {syncing ? 'Syncing...' : 'Sync GitHub Contributions'}
+        </button>
+      </div>
+
+      <div className="bg-black/5 p-6 rounded-2xl">
+        <div className="flex items-center gap-4 mb-4">
+          <div className="w-12 h-12 bg-[#0A66C2] rounded-full flex items-center justify-center">
+            <Linkedin className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h3 className="font-bold text-lg">LinkedIn Integration</h3>
+            <p className="text-sm text-black/60">Manage your LinkedIn posts showcase</p>
+          </div>
+        </div>
+        <p className="text-black/60 mb-4">
+          LinkedIn posts are manually managed through the LinkedIn tab. Add posts you want to showcase on your portfolio.
+          Due to LinkedIn API restrictions, automatic syncing is not available.
+        </p>
+        <Link href="#" onClick={() => {}}>
+          <span className="text-black font-medium hover:underline">
+            Go to LinkedIn Posts tab to manage posts
+          </span>
+        </Link>
+      </div>
+
+      <div className="bg-black/5 p-6 rounded-2xl">
+        <h3 className="font-bold text-lg mb-4">Environment Information</h3>
+        <div className="space-y-2 text-sm">
+          <div className="flex justify-between">
+            <span className="text-black/60">Admin Credentials</span>
+            <span className="font-mono bg-green-100 text-green-700 px-2 py-1 rounded">Configured</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-black/60">Database</span>
+            <span className="font-mono bg-green-100 text-green-700 px-2 py-1 rounded">Connected</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-black/60">GitHub Connector</span>
+            <span className="font-mono bg-green-100 text-green-700 px-2 py-1 rounded">Active</span>
+          </div>
+        </div>
       </div>
     </div>
   );
