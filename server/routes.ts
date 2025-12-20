@@ -598,7 +598,17 @@ export async function registerRoutes(
 
   app.put("/api/project-sections/:id", async (req, res) => {
     try {
-      const section = await storage.updateProjectSection(req.params.id, req.body);
+      // Only allow updating these specific fields
+      const { title, content, imageUrl, imageAlignment, imageCaption, order } = req.body;
+      const updateData: any = {};
+      if (title !== undefined) updateData.title = title;
+      if (content !== undefined) updateData.content = content;
+      if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
+      if (imageAlignment !== undefined) updateData.imageAlignment = imageAlignment;
+      if (imageCaption !== undefined) updateData.imageCaption = imageCaption;
+      if (order !== undefined) updateData.order = order;
+      
+      const section = await storage.updateProjectSection(req.params.id, updateData);
       if (!section) {
         res.status(404).json({ error: "Section not found" });
         return;
