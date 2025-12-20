@@ -5,6 +5,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Download, CheckCircle2, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { fetchSiteConfig } from "@/lib/api";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import About from "@/pages/About";
@@ -80,7 +82,12 @@ function ProtectedAdminRoute() {
 }
 
 function Router() {
-  useSEO("ZEEDIE | Creative Engineer", "Portfolio of ZEEDIE - Full Stack Developer & UI/UX Specialist");
+  const { data: siteConfig } = useQuery({ queryKey: ['site-config'], queryFn: fetchSiteConfig });
+  
+  useSEO(
+    siteConfig?.seo?.title || "ZEEDIE | Creative Engineer", 
+    siteConfig?.seo?.description || "Portfolio of ZEEDIE - Full Stack Developer & UI/UX Specialist"
+  );
 
   return (
     <Switch>

@@ -87,3 +87,19 @@ export async function fetchAboutBlocks() {
   if (!res.ok) throw new Error('Failed to fetch about blocks');
   return res.json();
 }
+
+export async function fetchSiteConfig() {
+  const res = await fetch(`${API_BASE}/site-config`);
+  if (!res.ok) throw new Error('Failed to fetch site configuration');
+  return res.json();
+}
+
+export async function updateSiteConfig(data: any) {
+  const res = await fetch(`${API_BASE}/site-config`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Failed to update site configuration');
+  return res.json();
+}

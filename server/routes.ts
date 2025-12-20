@@ -577,5 +577,32 @@ export async function registerRoutes(
     }
   });
 
+  // Site configuration routes
+  app.get("/api/site-config", async (_req, res) => {
+    try {
+      const fs = await import("fs/promises");
+      const path = await import("path");
+      const configPath = path.join(process.cwd(), "client", "src", "config", "site-config.json");
+      const config = await fs.readFile(configPath, "utf-8");
+      res.json(JSON.parse(config));
+    } catch (error) {
+      console.error('Failed to read site config:', error);
+      res.status(500).json({ error: "Failed to read site configuration" });
+    }
+  });
+
+  app.put("/api/site-config", async (req, res) => {
+    try {
+      const fs = await import("fs/promises");
+      const path = await import("path");
+      const configPath = path.join(process.cwd(), "client", "src", "config", "site-config.json");
+      await fs.writeFile(configPath, JSON.stringify(req.body, null, 2));
+      res.json({ success: true, config: req.body });
+    } catch (error) {
+      console.error('Failed to update site config:', error);
+      res.status(500).json({ error: "Failed to update site configuration" });
+    }
+  });
+
   return httpServer;
 }

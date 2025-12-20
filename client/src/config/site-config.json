@@ -1,0 +1,17 @@
+
+{
+  "hero": {
+    "title": "CREATIVE",
+    "subtitle": "ENGINEER",
+    "description": "Full Stack Developer",
+    "established": "EST. 2024",
+    "version": "PORTFOLIO V1"
+  },
+  "seo": {
+    "title": "ZEEDIE | Creative Engineer",
+    "description": "Portfolio of ZEEDIE - Full Stack Developer & UI/UX Specialist",
+    "keywords": "full stack developer, web developer, UI/UX, portfolio, creative engineer",
+    "author": "ZEEDIE",
+    "ogImage": "/opengraph.jpg"
+  }
+}

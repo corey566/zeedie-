@@ -12,7 +12,9 @@ import {
   fetchSocials,
   fetchLinkedinPosts,
   fetchAboutBlocks,
-  syncGithubContributions
+  syncGithubContributions,
+  fetchSiteConfig,
+  updateSiteConfig
 } from '@/lib/api';
 import Footer from '@/components/Footer';
 
@@ -33,6 +35,7 @@ export default function Admin() {
 
   const tabs = [
     { id: 'profile', label: 'Profile', icon: User },
+    { id: 'siteconfig', label: 'Hero & SEO', icon: Settings },
     { id: 'about', label: 'About Page', icon: LayoutGrid },
     { id: 'projects', label: 'Projects', icon: FolderOpen },
     { id: 'blog', label: 'Blog Posts', icon: FileText },
@@ -94,6 +97,7 @@ export default function Admin() {
 
         <div className="bg-white p-8 md:p-12 rounded-[2.5rem] shadow-sm">
           {activeTab === 'profile' && <ProfileEditor />}
+          {activeTab === 'siteconfig' && <SiteConfigEditor />}
           {activeTab === 'about' && <AboutBlocksEditor />}
           {activeTab === 'projects' && <ProjectsEditor />}
           {activeTab === 'blog' && <BlogEditor />}
@@ -1488,6 +1492,202 @@ function SettingsEditor() {
             <span className="font-mono bg-green-100 text-green-700 px-2 py-1 rounded">Active</span>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function SiteConfigEditor() {
+  const queryClient = useQueryClient();
+  const { data: config, isLoading } = useQuery({ queryKey: ['site-config'], queryFn: fetchSiteConfig });
+  const [formData, setFormData] = useState<any>(null);
+  const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  const updateMutation = useMutation({
+    mutationFn: async (data: any) => {
+      return updateSiteConfig(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['site-config'] });
+      setFormData(null);
+      setStatus({ type: 'success', message: 'Site configuration updated successfully!' });
+      // Reload the page to apply SEO changes
+      setTimeout(() => window.location.reload(), 1500);
+    },
+    onError: () => setStatus({ type: 'error', message: 'Failed to update site configuration.' }),
+  });
+
+  const handleSave = () => {
+    if (!formData) return;
+    updateMutation.mutate(formData);
+  };
+
+  if (isLoading) return <div className="flex items-center gap-2"><Loader2 className="w-5 h-5 animate-spin" /> Loading...</div>;
+
+  const data = formData || config;
+
+  return (
+    <div className="space-y-8">
+      <h2 className="text-2xl font-display mb-6">Hero Section & SEO Settings</h2>
+
+      <p className="text-black/60 text-sm mb-4">
+        Configure the hero section and SEO metadata for your portfolio. These settings are stored in a JSON file.
+      </p>
+
+      {status && <StatusMessage type={status.type} message={status.message} />}
+
+      {/* Hero Section */}
+      <div className="bg-black/5 p-6 rounded-2xl space-y-4">
+        <h3 className="font-bold text-lg mb-4">Hero Section</h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-black/60 mb-2">Main Title</label>
+            <input
+              type="text"
+              value={data?.hero?.title || ''}
+              onChange={(e) => setFormData({ ...data, hero: { ...data.hero, title: e.target.value } })}
+              className="w-full px-4 py-3 rounded-xl border border-black/10 focus:border-black focus:outline-none"
+              placeholder="CREATIVE"
+              data-testid="input-hero-title"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-black/60 mb-2">Subtitle</label>
+            <input
+              type="text"
+              value={data?.hero?.subtitle || ''}
+              onChange={(e) => setFormData({ ...data, hero: { ...data.hero, subtitle: e.target.value } })}
+              className="w-full px-4 py-3 rounded-xl border border-black/10 focus:border-black focus:outline-none"
+              placeholder="ENGINEER"
+              data-testid="input-hero-subtitle"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-black/60 mb-2">Description</label>
+            <input
+              type="text"
+              value={data?.hero?.description || ''}
+              onChange={(e) => setFormData({ ...data, hero: { ...data.hero, description: e.target.value } })}
+              className="w-full px-4 py-3 rounded-xl border border-black/10 focus:border-black focus:outline-none"
+              placeholder="Full Stack Developer"
+              data-testid="input-hero-description"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-black/60 mb-2">Established Text</label>
+            <input
+              type="text"
+              value={data?.hero?.established || ''}
+              onChange={(e) => setFormData({ ...data, hero: { ...data.hero, established: e.target.value } })}
+              className="w-full px-4 py-3 rounded-xl border border-black/10 focus:border-black focus:outline-none"
+              placeholder="EST. 2024"
+              data-testid="input-hero-established"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-black/60 mb-2">Version Text</label>
+            <input
+              type="text"
+              value={data?.hero?.version || ''}
+              onChange={(e) => setFormData({ ...data, hero: { ...data.hero, version: e.target.value } })}
+              className="w-full px-4 py-3 rounded-xl border border-black/10 focus:border-black focus:outline-none"
+              placeholder="PORTFOLIO V1"
+              data-testid="input-hero-version"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* SEO Section */}
+      <div className="bg-black/5 p-6 rounded-2xl space-y-4">
+        <h3 className="font-bold text-lg mb-4">SEO Settings</h3>
+        
+        <div className="grid grid-cols-1 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-black/60 mb-2">Page Title</label>
+            <input
+              type="text"
+              value={data?.seo?.title || ''}
+              onChange={(e) => setFormData({ ...data, seo: { ...data.seo, title: e.target.value } })}
+              className="w-full px-4 py-3 rounded-xl border border-black/10 focus:border-black focus:outline-none"
+              placeholder="ZEEDIE | Creative Engineer"
+              data-testid="input-seo-title"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-black/60 mb-2">Meta Description</label>
+            <textarea
+              value={data?.seo?.description || ''}
+              onChange={(e) => setFormData({ ...data, seo: { ...data.seo, description: e.target.value } })}
+              className="w-full px-4 py-3 rounded-xl border border-black/10 focus:border-black focus:outline-none"
+              rows={2}
+              placeholder="Portfolio of ZEEDIE - Full Stack Developer & UI/UX Specialist"
+              data-testid="input-seo-description"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-black/60 mb-2">Keywords (comma separated)</label>
+            <input
+              type="text"
+              value={data?.seo?.keywords || ''}
+              onChange={(e) => setFormData({ ...data, seo: { ...data.seo, keywords: e.target.value } })}
+              className="w-full px-4 py-3 rounded-xl border border-black/10 focus:border-black focus:outline-none"
+              placeholder="full stack developer, web developer, UI/UX"
+              data-testid="input-seo-keywords"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-black/60 mb-2">Author</label>
+            <input
+              type="text"
+              value={data?.seo?.author || ''}
+              onChange={(e) => setFormData({ ...data, seo: { ...data.seo, author: e.target.value } })}
+              className="w-full px-4 py-3 rounded-xl border border-black/10 focus:border-black focus:outline-none"
+              placeholder="ZEEDIE"
+              data-testid="input-seo-author"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-black/60 mb-2">OG Image Path</label>
+            <input
+              type="text"
+              value={data?.seo?.ogImage || ''}
+              onChange={(e) => setFormData({ ...data, seo: { ...data.seo, ogImage: e.target.value } })}
+              className="w-full px-4 py-3 rounded-xl border border-black/10 focus:border-black focus:outline-none"
+              placeholder="/opengraph.jpg"
+              data-testid="input-seo-ogimage"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="flex gap-2">
+        <button
+          onClick={handleSave}
+          disabled={updateMutation.isPending || !formData}
+          className="flex items-center gap-2 px-6 py-3 bg-black text-white rounded-full font-medium hover:bg-black/80 disabled:opacity-50"
+          data-testid="button-save-siteconfig"
+        >
+          {updateMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+          Save Changes
+        </button>
+        {formData && (
+          <button
+            onClick={() => { setFormData(null); setStatus(null); }}
+            className="px-6 py-3 bg-black/10 rounded-full font-medium"
+          >
+            Reset
+          </button>
+        )}
       </div>
     </div>
   );

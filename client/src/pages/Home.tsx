@@ -10,7 +10,8 @@ import {
   fetchBlogPosts, 
   fetchExperience, 
   fetchLinkedinPosts,
-  fetchGithubContributions
+  fetchGithubContributions,
+  fetchSiteConfig
 } from '@/lib/api';
 
 export default function Home() {
@@ -29,6 +30,7 @@ export default function Home() {
   const { data: experience = [] } = useQuery({ queryKey: ['experience'], queryFn: fetchExperience });
   const { data: linkedinPosts = [] } = useQuery({ queryKey: ['linkedin-posts'], queryFn: fetchLinkedinPosts });
   const { data: githubData = [] } = useQuery({ queryKey: ['github-contributions'], queryFn: fetchGithubContributions });
+  const { data: siteConfig } = useQuery({ queryKey: ['site-config'], queryFn: fetchSiteConfig });
 
   // GitHub Contribution Graph Component
   const ContributionGraph = () => {
@@ -96,8 +98,8 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/10 pointer-events-none" />
 
           {/* Top Corners Decor */}
-          <div className="absolute top-8 left-8 text-black/40 font-mono text-sm">EST. 2024</div>
-          <div className="absolute top-8 right-8 text-black/40 font-mono text-sm">PORTFOLIO V1</div>
+          <div className="absolute top-8 left-8 text-black/40 font-mono text-sm">{siteConfig?.hero?.established || 'EST. 2024'}</div>
+          <div className="absolute top-8 right-8 text-black/40 font-mono text-sm">{siteConfig?.hero?.version || 'PORTFOLIO V1'}</div>
 
           {/* Center/Main Content */}
           <div className="absolute inset-0 flex flex-col justify-center items-center text-center z-20 pointer-events-none px-4">
@@ -108,10 +110,10 @@ export default function Home() {
               className="relative flex flex-col items-center"
             >
                <h1 className="font-display text-[12vw] md:text-[13vw] leading-[0.85] tracking-tighter text-black mix-blend-overlay opacity-90">
-                CREATIVE
+                {siteConfig?.hero?.title || 'CREATIVE'}
               </h1>
               <h1 className="font-display text-[12vw] md:text-[13vw] leading-[0.85] tracking-tighter text-transparent stroke-black/80" style={{ WebkitTextStroke: '2px rgba(0,0,0,0.8)' }}>
-                ENGINEER
+                {siteConfig?.hero?.subtitle || 'ENGINEER'}
               </h1>
             </motion.div>
           </div>
@@ -126,7 +128,7 @@ export default function Home() {
               
               <div className="flex flex-col gap-1 md:gap-3">
                 <span className="font-mono text-xs uppercase tracking-widest opacity-60">
-                  Full Stack Developer
+                  {siteConfig?.hero?.description || 'Full Stack Developer'}
                 </span>
                 <h2 className="font-display text-3xl md:text-5xl font-black uppercase tracking-tight">
                   {profile?.name || "ZEEDIE"}
