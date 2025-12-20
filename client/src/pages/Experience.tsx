@@ -51,34 +51,35 @@ export default function Experience() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background text-foreground pt-32 px-6 md:px-12 pb-20">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-[#f2f2f2] text-foreground font-sans pt-32 px-4 md:px-12 pb-20">
+      <div className="max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
+          className="bg-white p-8 md:p-12 rounded-[2.5rem] shadow-sm mb-8"
         >
-          <span className="inline-block font-mono text-xs uppercase tracking-widest text-primary mb-4 px-3 py-1 bg-primary/10 rounded-full">Career</span>
-          <h1 className="font-display text-6xl md:text-7xl mt-6 mb-12 leading-tight">Professional Experience</h1>
+          <span className="inline-block font-mono text-xs uppercase tracking-widest text-black/60 mb-4 px-3 py-1 bg-black/5 rounded-full">Career</span>
+          <h1 className="font-display text-5xl md:text-7xl mt-4 mb-8 leading-[0.9] tracking-tighter">Professional <span className="text-black/40">Experience</span></h1>
         </motion.div>
 
-        <div ref={containerRef} className="space-y-8">
+        <div ref={containerRef} className="space-y-6">
           {experiences.map((exp, i) => (
             <motion.div
               key={i}
-              className="exp-card group p-8 bg-secondary/30 border-2 border-border rounded-xl hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 hover:scale-105"
-              whileHover={{ y: -5 }}
+              className="exp-card group p-8 md:p-12 bg-white rounded-[2.5rem] shadow-sm hover:shadow-lg transition-all duration-300"
+              whileHover={{ scale: 1.01 }}
             >
-              <div className="flex items-start justify-between mb-4">
+              <div className="flex flex-col md:flex-row items-start justify-between mb-8 gap-4">
                 <div className="flex-1">
-                  <h3 className="font-display text-2xl font-semibold group-hover:text-primary transition-colors">{exp.role}</h3>
-                  <p className="text-primary font-medium mt-1">{exp.company}</p>
-                  <p className="text-sm text-muted-foreground">{exp.location}</p>
+                  <h3 className="font-display text-3xl font-semibold mb-2">{exp.role}</h3>
+                  <p className="text-xl text-black/60 font-medium">{exp.company}</p>
+                  <p className="text-sm text-black/40 mt-1">{exp.location}</p>
                 </div>
-                <span className="font-mono text-sm text-muted-foreground whitespace-nowrap ml-4">{exp.period}</span>
+                <span className="font-mono text-sm bg-black text-white px-4 py-2 rounded-full whitespace-nowrap">{exp.period}</span>
               </div>
 
-              <div className="space-y-2 mt-6 pt-6 border-t border-border">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-8 border-t border-black/5">
                 {exp.highlights.map((highlight, j) => (
                   <motion.div
                     key={j}
@@ -86,9 +87,9 @@ export default function Experience() {
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: j * 0.05 }}
-                    className="flex gap-3 text-sm text-muted-foreground"
+                    className="flex gap-3 text-base text-black/70 p-3 rounded-xl hover:bg-black/5 transition-colors"
                   >
-                    <ChevronRight className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                    <ChevronRight className="w-5 h-5 text-black flex-shrink-0 mt-0.5" />
                     <span>{highlight}</span>
                   </motion.div>
                 ))}

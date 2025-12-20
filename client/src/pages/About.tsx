@@ -21,40 +21,45 @@ export default function About() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background text-foreground pt-32 px-6 md:px-12 pb-20">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-[#f2f2f2] text-foreground font-sans pt-32 px-4 md:px-12 pb-20">
+      <div className="max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
+          className="bg-white p-8 md:p-12 rounded-[2.5rem] shadow-sm mb-8"
         >
-          <span className="inline-block font-mono text-xs uppercase tracking-widest text-primary mb-4 px-3 py-1 bg-primary/10 rounded-full">About Me</span>
-          <h1 className="font-display text-6xl md:text-7xl mt-6 mb-12 leading-tight">Full-Stack Engineer with a Focus on Enterprise Solutions</h1>
+          <span className="inline-block font-mono text-xs uppercase tracking-widest text-black/60 mb-4 px-3 py-1 bg-black/5 rounded-full">About Me</span>
+          <h1 className="font-display text-5xl md:text-7xl mt-4 mb-8 leading-[0.9] tracking-tighter">
+            Full-Stack Engineer with a Focus on <span className="text-black/40">Enterprise Solutions</span>
+          </h1>
         </motion.div>
 
-        <div ref={sectionRef} className="space-y-8">
-          <motion.div className="fade-in p-8 bg-secondary/30 border-2 border-border rounded-xl hover:border-primary/30 transition-colors">
-            <h3 className="font-display text-2xl mb-4">The Journey</h3>
-            <p className="text-lg text-muted-foreground leading-relaxed">
+        <div ref={sectionRef} className="space-y-6">
+          <motion.div className="fade-in p-8 md:p-12 bg-white rounded-[2.5rem] shadow-sm hover:shadow-md transition-all">
+            <h3 className="font-display text-3xl mb-6">The Journey</h3>
+            <p className="text-xl text-black/60 leading-relaxed font-light">
               My university experience focused heavily on syllabus completion rather than practical, industry-ready knowledge. While fundamentals were repeatedly taught, real-world application was limited. In 2020, I began my professional journey as a freelance developer, delivering my first production website using HTML, CSS, and JavaScript. This marked the start of continuous self-driven learning.
             </p>
           </motion.div>
 
-          <motion.div className="fade-in p-8 bg-secondary/30 border-2 border-border rounded-xl hover:border-primary/30 transition-colors">
-            <h3 className="font-display text-2xl mb-4">Technical Evolution</h3>
-            <p className="text-lg text-muted-foreground leading-relaxed">
-              Inspired by the rise of AI, I built object recognition applications using Python and OpenCV, then expanded into React, Node.js, MERN-based projects, and Laravel-based enterprise systems. Over time, I specialized in building ERP platforms, geolocation systems, HR tracking tools, and SaaS applications.
-            </p>
-          </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <motion.div className="fade-in p-8 md:p-12 bg-white rounded-[2.5rem] shadow-sm hover:shadow-md transition-all">
+              <h3 className="font-display text-2xl mb-4">Technical Evolution</h3>
+              <p className="text-lg text-black/60 leading-relaxed">
+                Inspired by the rise of AI, I built object recognition applications using Python and OpenCV, then expanded into React, Node.js, MERN-based projects, and Laravel-based enterprise systems. Over time, I specialized in building ERP platforms, geolocation systems, HR tracking tools, and SaaS applications.
+              </p>
+            </motion.div>
 
-          <motion.div className="fade-in p-8 bg-secondary/30 border-2 border-border rounded-xl hover:border-primary/30 transition-colors">
-            <h3 className="font-display text-2xl mb-4">Current Focus</h3>
-            <p className="text-lg text-muted-foreground leading-relaxed">
-              Today, I deliver measurable business value across multiple industries. From web scrapers that generate leads, to ERP systems processing millions in transactions, to automation workflows saving hours of manual work — every project is built with attention to performance, scalability, and user experience.
-            </p>
-          </motion.div>
+            <motion.div className="fade-in p-8 md:p-12 bg-black text-white rounded-[2.5rem] shadow-sm hover:shadow-md transition-all">
+              <h3 className="font-display text-2xl mb-4">Current Focus</h3>
+              <p className="text-lg text-white/70 leading-relaxed">
+                Today, I deliver measurable business value across multiple industries. From web scrapers that generate leads, to ERP systems processing millions in transactions, to automation workflows saving hours of manual work — every project is built with attention to performance, scalability, and user experience.
+              </p>
+            </motion.div>
+          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 pt-12 border-t border-border">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
               { label: 'Languages', value: 'PHP, JavaScript, Python, Laravel' },
               { label: 'Specialties', value: 'ERP, SaaS, CRM, Automation' },
@@ -66,10 +71,10 @@ export default function About() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="fade-in p-6 bg-primary/5 border-2 border-primary/20 rounded-lg hover:border-primary/50 transition-colors"
+                className="fade-in p-8 bg-white rounded-[2rem] shadow-sm hover:bg-black hover:text-white transition-all group"
               >
-                <p className="text-sm text-primary font-semibold mb-2">{item.label}</p>
-                <p className="text-muted-foreground">{item.value}</p>
+                <p className="text-sm font-mono uppercase tracking-widest opacity-50 mb-4">{item.label}</p>
+                <p className="text-xl font-display leading-tight">{item.value}</p>
               </motion.div>
             ))}
           </div>

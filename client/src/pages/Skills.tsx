@@ -51,31 +51,32 @@ export default function Skills() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background text-foreground pt-32 px-6 md:px-12 pb-20">
+    <div className="min-h-screen bg-[#f2f2f2] text-foreground font-sans pt-32 px-4 md:px-12 pb-20">
       <div className="max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
+          className="bg-white p-8 md:p-12 rounded-[2.5rem] shadow-sm mb-8"
         >
-          <span className="inline-block font-mono text-xs uppercase tracking-widest text-primary mb-4 px-3 py-1 bg-primary/10 rounded-full">Expertise</span>
-          <h1 className="font-display text-6xl md:text-7xl mt-6 mb-12 leading-tight">Skills & Technologies</h1>
+          <span className="inline-block font-mono text-xs uppercase tracking-widest text-black/60 mb-4 px-3 py-1 bg-black/5 rounded-full">Expertise</span>
+          <h1 className="font-display text-5xl md:text-7xl mt-4 mb-8 leading-[0.9] tracking-tighter">Skills & <span className="text-black/40">Technologies</span></h1>
         </motion.div>
 
-        <div ref={containerRef} className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
+        <div ref={containerRef} className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           {skillGroups.map((group, i) => (
             <motion.div
               key={i}
-              className="skill-card group p-8 bg-secondary/30 border-2 border-border rounded-xl hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 hover:scale-105"
+              className="skill-card group p-8 md:p-10 bg-white rounded-[2.5rem] shadow-sm hover:shadow-lg transition-all duration-300"
               whileHover={{ y: -5 }}
             >
-              <h3 className="font-display text-2xl mb-6 group-hover:text-primary transition-colors">{group.title}</h3>
+              <h3 className="font-display text-3xl mb-6">{group.title}</h3>
               <div className="flex flex-wrap gap-3">
                 {group.skills.map((skill, j) => (
                   <motion.span
                     key={j}
-                    className="skill-tag px-4 py-2 text-sm bg-primary/10 text-primary rounded-full font-medium group-hover:bg-primary/20 transition-colors cursor-default"
-                    whileHover={{ scale: 1.1 }}
+                    className="skill-tag px-4 py-2 text-base bg-black/5 text-black/80 rounded-xl font-medium group-hover:bg-black group-hover:text-white transition-colors cursor-default"
+                    whileHover={{ scale: 1.05 }}
                   >
                     {skill}
                   </motion.span>
@@ -90,7 +91,7 @@ export default function Skills() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="p-8 bg-primary/5 border-2 border-primary/20 rounded-xl"
+          className="p-8 md:p-12 bg-black text-white rounded-[2.5rem] shadow-lg"
         >
           <h2 className="font-display text-3xl mb-12">Proficiency Levels</h2>
           <div className="space-y-8">
@@ -109,16 +110,16 @@ export default function Skills() {
                 transition={{ delay: i * 0.05 }}
               >
                 <div className="flex justify-between items-center mb-3">
-                  <span className="font-medium text-foreground">{skill.name}</span>
-                  <span className="text-sm text-primary font-semibold">{skill.level}%</span>
+                  <span className="font-medium text-lg">{skill.name}</span>
+                  <span className="text-sm font-bold opacity-60">{skill.level}%</span>
                 </div>
-                <div className="h-3 bg-border rounded-full overflow-hidden">
+                <div className="h-4 bg-white/10 rounded-full overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
                     whileInView={{ width: `${skill.level}%` }}
                     transition={{ duration: 1.2, delay: i * 0.05 }}
                     viewport={{ once: true }}
-                    className="h-full bg-gradient-to-r from-primary to-primary/60"
+                    className="h-full bg-white"
                   />
                 </div>
               </motion.div>

@@ -46,17 +46,17 @@ export default function Home() {
           <div className="absolute top-8 right-8 text-black/40 font-mono text-sm">PORTFOLIO V1</div>
 
           {/* Center/Main Content */}
-          <div className="absolute inset-0 flex flex-col justify-center items-center text-center z-20 pointer-events-none">
+          <div className="absolute inset-0 flex flex-col justify-center items-center text-center z-20 pointer-events-none px-4">
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-              className="relative"
+              className="relative flex flex-col items-center"
             >
-               <h1 className="font-display text-[15vw] md:text-[13vw] leading-[0.8] tracking-tighter text-black mix-blend-overlay opacity-90">
+               <h1 className="font-display text-[12vw] md:text-[13vw] leading-[0.85] tracking-tighter text-black mix-blend-overlay opacity-90">
                 CREATIVE
               </h1>
-              <h1 className="font-display text-[15vw] md:text-[13vw] leading-[0.8] tracking-tighter text-transparent stroke-black/80" style={{ WebkitTextStroke: '2px rgba(0,0,0,0.8)' }}>
+              <h1 className="font-display text-[12vw] md:text-[13vw] leading-[0.85] tracking-tighter text-transparent stroke-black/80" style={{ WebkitTextStroke: '2px rgba(0,0,0,0.8)' }}>
                 ENGINEER
               </h1>
             </motion.div>
@@ -66,15 +66,15 @@ export default function Home() {
           <div className="absolute bottom-0 left-0 w-full flex flex-col md:flex-row items-end justify-between p-0 z-30">
             
             {/* Name Card with Curved Tab Effect */}
-            <div className="relative bg-white text-black p-8 md:p-10 rounded-tr-[3rem] w-full md:w-auto min-w-[35%] shadow-[0_-20px_40px_rgba(0,0,0,0.1)]">
+            <div className="relative bg-white text-black p-6 md:p-10 rounded-tr-[3rem] w-full md:w-auto min-w-[35%] shadow-[0_-20px_40px_rgba(0,0,0,0.1)] flex flex-col gap-2">
               {/* Inverted Corner Smoother */}
               <div className="absolute -top-[40px] left-0 w-[40px] h-[40px] bg-transparent shadow-[-20px_20px_0_0_#fff] rounded-bl-[20px] pointer-events-none hidden md:block" />
               
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-1 md:gap-3">
                 <span className="font-mono text-xs uppercase tracking-widest opacity-60">
                   Full Stack Developer
                 </span>
-                <h2 className="font-display text-4xl md:text-5xl font-black uppercase tracking-tight">
+                <h2 className="font-display text-3xl md:text-5xl font-black uppercase tracking-tight">
                   ZEE DIE
                 </h2>
               </div>
@@ -84,21 +84,21 @@ export default function Home() {
             </div>
 
             {/* Scroll Indicator */}
-             <div className="hidden md:flex flex-col items-center pb-12 opacity-50 animate-bounce">
+             <div className="hidden md:flex flex-col items-center pb-12 opacity-50 animate-bounce absolute left-1/2 -translate-x-1/2 bottom-0">
                 <div className="w-[1px] h-12 bg-black"></div>
                 <span className="text-xs font-mono mt-2">SCROLL</span>
              </div>
 
             {/* CTA Button */}
-            <div className="p-8 md:p-10 w-full md:w-auto flex justify-end">
+            <div className="p-6 md:p-10 w-full md:w-auto flex justify-end bg-gradient-to-t from-black/20 to-transparent md:bg-none">
               <Link href="/projects">
                 <motion.button 
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="bg-black text-white px-8 py-4 rounded-full font-medium text-lg flex items-center gap-2 group shadow-xl hover:shadow-2xl transition-all cursor-pointer"
+                  className="bg-black text-white px-6 py-3 md:px-8 md:py-4 rounded-full font-medium text-sm md:text-lg flex items-center gap-2 group shadow-xl hover:shadow-2xl transition-all cursor-pointer whitespace-nowrap"
                 >
                   View Selected Work
-                  <ArrowUpRight className="w-5 h-5 group-hover:rotate-45 transition-transform" />
+                  <ArrowUpRight className="w-4 h-4 md:w-5 md:h-5 group-hover:rotate-45 transition-transform" />
                 </motion.button>
               </Link>
             </div>
