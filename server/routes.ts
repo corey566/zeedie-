@@ -605,6 +605,7 @@ export async function registerRoutes(
       }
       res.json(section);
     } catch (error) {
+      console.error('Update section error:', error);
       res.status(500).json({ error: "Failed to update section" });
     }
   });

@@ -355,8 +355,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateProjectSection(id: string, data: Partial<InsertProjectSection>): Promise<ProjectSection | undefined> {
-    const [section] = await db.update(projectSections).set(data).where(eq(projectSections.id, id)).returning();
-    return section;
+    try {
+      const [section] = await db.update(projectSections).set(data).where(eq(projectSections.id, id)).returning();
+      return section;
+    } catch (error) {
+      console.error('Database update error:', error);
+      throw error;
+    }
   }
 
   async deleteProjectSection(id: string): Promise<boolean> {
