@@ -185,3 +185,19 @@ export const projectSections = pgTable("project_sections", {
 export const insertProjectSectionSchema = createInsertSchema(projectSections).omit({ id: true, createdAt: true });
 export type InsertProjectSection = z.infer<typeof insertProjectSectionSchema>;
 export type ProjectSection = typeof projectSections.$inferSelect;
+
+// Media Library
+export const mediaItems = pgTable("media_items", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  url: text("url").notNull(),
+  objectPath: text("object_path"),
+  type: text("type").notNull().default('image'), // 'image' or 'video'
+  size: integer("size"),
+  mimeType: text("mime_type"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertMediaItemSchema = createInsertSchema(mediaItems).omit({ id: true, createdAt: true });
+export type InsertMediaItem = z.infer<typeof insertMediaItemSchema>;
+export type MediaItem = typeof mediaItems.$inferSelect;

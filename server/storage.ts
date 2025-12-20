@@ -23,6 +23,8 @@ import {
   type InsertAboutBlock,
   type ProjectSection,
   type InsertProjectSection,
+  type MediaItem,
+  type InsertMediaItem,
   users,
   profile,
   projects,
@@ -34,7 +36,8 @@ import {
   linkedinPosts,
   githubContributions,
   aboutBlocks,
-  projectSections
+  projectSections,
+  mediaItems
 } from "@shared/schema";
 import { db } from "@db";
 import { eq, desc } from "drizzle-orm";
@@ -112,6 +115,12 @@ export interface IStorage {
   createProjectSection(data: InsertProjectSection): Promise<ProjectSection>;
   updateProjectSection(id: string, data: Partial<InsertProjectSection>): Promise<ProjectSection | undefined>;
   deleteProjectSection(id: string): Promise<boolean>;
+
+  // Media Library methods
+  getAllMediaItems(): Promise<MediaItem[]>;
+  getMediaItemsByType(type: string): Promise<MediaItem[]>;
+  createMediaItem(item: InsertMediaItem): Promise<MediaItem>;
+  deleteMediaItem(id: string): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -367,6 +376,25 @@ export class DatabaseStorage implements IStorage {
 
   async deleteProjectSection(id: string): Promise<boolean> {
     const result = await db.delete(projectSections).where(eq(projectSections.id, id));
+    return result.rowCount ? result.rowCount > 0 : false;
+  }
+
+  // Media Library methods
+  async getAllMediaItems(): Promise<MediaItem[]> {
+    return db.select().from(mediaItems).orderBy(desc(mediaItems.createdAt));
+  }
+
+  async getMediaItemsByType(type: string): Promise<MediaItem[]> {
+    return db.select().from(mediaItems).where(eq(mediaItems.type, type)).orderBy(desc(mediaItems.createdAt));
+  }
+
+  async createMediaItem(item: InsertMediaItem): Promise<MediaItem> {
+    const [created] = await db.insert(mediaItems).values(item).returning();
+    return created;
+  }
+
+  async deleteMediaItem(id: string): Promise<boolean> {
+    const result = await db.delete(mediaItems).where(eq(mediaItems.id, id));
     return result.rowCount ? result.rowCount > 0 : false;
   }
 }

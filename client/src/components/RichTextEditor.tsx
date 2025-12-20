@@ -20,11 +20,14 @@ import {
   Quote,
   Link as LinkIcon,
   Image as ImageIcon,
+  Video,
   Undo,
   Redo,
-  Code
+  Code,
+  FolderOpen
 } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { MediaLibrary } from './MediaLibrary';
 
 interface RichTextEditorProps {
   content: string;
@@ -33,6 +36,9 @@ interface RichTextEditorProps {
 }
 
 export default function RichTextEditor({ content, onChange, placeholder }: RichTextEditorProps) {
+  const [mediaLibraryOpen, setMediaLibraryOpen] = useState(false);
+  const [mediaType, setMediaType] = useState<"image" | "video" | "all">("all");
+  
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -72,9 +78,20 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
     return null;
   }
 
-  const addImage = () => {
-    const url = window.prompt('Enter image URL:');
-    if (url) {
+  const openMediaLibrary = (type: "image" | "video" | "all" = "all") => {
+    setMediaType(type);
+    setMediaLibraryOpen(true);
+  };
+
+  const handleMediaSelect = (url: string) => {
+    if (mediaType === "video" || url.match(/\.(mp4|webm|ogg|mov)(\?.*)?$/i) || url.includes("youtube.com") || url.includes("vimeo.com")) {
+      const isEmbed = url.includes("youtube.com") || url.includes("vimeo.com");
+      if (isEmbed) {
+        editor.chain().focus().insertContent(`<div class="video-embed"><iframe src="${url}" frameborder="0" allowfullscreen style="width:100%;aspect-ratio:16/9;"></iframe></div>`).run();
+      } else {
+        editor.chain().focus().insertContent(`<video src="${url}" controls style="max-width:100%;border-radius:0.5rem;"></video>`).run();
+      }
+    } else {
       editor.chain().focus().setImage({ src: url }).run();
     }
   };
@@ -228,8 +245,14 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
         <ToolbarButton onClick={addLink} title="Add Link">
           <LinkIcon className="w-4 h-4" />
         </ToolbarButton>
-        <ToolbarButton onClick={addImage} title="Add Image">
+        <ToolbarButton onClick={() => openMediaLibrary("image")} title="Add Image">
           <ImageIcon className="w-4 h-4" />
+        </ToolbarButton>
+        <ToolbarButton onClick={() => openMediaLibrary("video")} title="Add Video">
+          <Video className="w-4 h-4" />
+        </ToolbarButton>
+        <ToolbarButton onClick={() => openMediaLibrary("all")} title="Media Library">
+          <FolderOpen className="w-4 h-4" />
         </ToolbarButton>
         
         <div className="w-px h-6 bg-black/20 mx-1 self-center" />
@@ -310,7 +333,27 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
           color: #0066cc;
           text-decoration: underline;
         }
+        .ProseMirror video {
+          max-width: 100%;
+          border-radius: 0.5rem;
+          margin: 0.5rem 0;
+        }
+        .ProseMirror .video-embed {
+          margin: 0.5rem 0;
+        }
+        .ProseMirror .video-embed iframe {
+          width: 100%;
+          aspect-ratio: 16/9;
+          border-radius: 0.5rem;
+        }
       `}</style>
+      
+      <MediaLibrary
+        open={mediaLibraryOpen}
+        onClose={() => setMediaLibraryOpen(false)}
+        onSelect={handleMediaSelect}
+        type={mediaType}
+      />
     </div>
   );
 }

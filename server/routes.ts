@@ -15,11 +15,15 @@ import {
 } from "@shared/schema";
 import { z } from "zod";
 import crypto from "crypto";
+import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  
+  // Register object storage routes for file uploads
+  registerObjectStorageRoutes(app);
   
   // Admin authentication routes
   app.post("/api/admin/login", async (req, res) => {
@@ -482,6 +486,56 @@ export async function registerRoutes(
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ error: "Failed to delete about block" });
+    }
+  });
+
+  // Media Library routes
+  app.get("/api/media", async (req, res) => {
+    try {
+      const type = req.query.type as string | undefined;
+      let items;
+      if (type && (type === 'image' || type === 'video')) {
+        items = await storage.getMediaItemsByType(type);
+      } else {
+        items = await storage.getAllMediaItems();
+      }
+      res.json(items);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch media items" });
+    }
+  });
+
+  app.post("/api/media", async (req, res) => {
+    try {
+      const { name, url, objectPath, type, size, mimeType } = req.body;
+      if (!name || !url || !type) {
+        res.status(400).json({ error: "Missing required fields: name, url, type" });
+        return;
+      }
+      const item = await storage.createMediaItem({
+        name,
+        url,
+        objectPath,
+        type,
+        size,
+        mimeType
+      });
+      res.status(201).json(item);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create media item" });
+    }
+  });
+
+  app.delete("/api/media/:id", async (req, res) => {
+    try {
+      const success = await storage.deleteMediaItem(req.params.id);
+      if (!success) {
+        res.status(404).json({ error: "Media item not found" });
+        return;
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete media item" });
     }
   });
 
