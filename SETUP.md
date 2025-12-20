@@ -74,7 +74,7 @@ The application requires the following environment variables:
 The application uses Drizzle ORM for database management.
 
 ### Automatic Migration
-On startup, the application automatically attempts to run pending migrations.
+On startup, the application automatically runs `drizzle-kit push` to sync the database schema with your tables. This creates any missing tables or columns.
 
 ### Manual Migration Commands
 

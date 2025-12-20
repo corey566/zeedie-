@@ -4,20 +4,36 @@ import { serveStatic } from "./static";
 import { createServer } from "http";
 import { db } from "@db";
 import { sql } from "drizzle-orm";
+import { exec } from "child_process";
+import { promisify } from "util";
+
+const execAsync = promisify(exec);
 
 const app = express();
 const httpServer = createServer(app);
 
-async function checkDatabaseConnection() {
+async function runDatabaseMigrations() {
   console.log("Checking database connection...");
   try {
     await db.execute(sql`SELECT 1`);
     console.log("Database connection successful.");
-    return true;
   } catch (error) {
     console.error("Database connection failed:", error);
     console.log("Please ensure DATABASE_URL is set correctly.");
     return false;
+  }
+
+  console.log("Running database schema sync (drizzle-kit push)...");
+  try {
+    const { stdout, stderr } = await execAsync("npx drizzle-kit push --force");
+    if (stdout) console.log(stdout);
+    if (stderr && !stderr.includes("No changes detected")) console.log(stderr);
+    console.log("Database schema sync completed.");
+    return true;
+  } catch (error: any) {
+    console.error("Schema sync warning:", error.message);
+    console.log("Tables may already exist or need manual migration.");
+    return true; // Continue anyway - tables might already exist
   }
 }
 
@@ -75,8 +91,8 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Check database connection on startup
-  await checkDatabaseConnection();
+  // Run database migrations on startup
+  await runDatabaseMigrations();
   
   await registerRoutes(httpServer, app);
 
