@@ -4,10 +4,12 @@ import gsap from 'gsap';
 import { ArrowUpRight, Loader2, ExternalLink, Github } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchProjects } from '@/lib/api';
+import { useNavigate } from 'react-router-dom';
 
 export default function Projects() {
   const gridRef = useRef<HTMLDivElement>(null);
   const { data: projects = [], isLoading } = useQuery({ queryKey: ['projects'], queryFn: fetchProjects });
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (gridRef.current && projects.length > 0) {
@@ -45,19 +47,21 @@ export default function Projects() {
           <h1 className="font-display text-5xl md:text-7xl mt-4 mb-8 leading-[0.9] tracking-tighter">Projects & <span className="text-black/40">Solutions</span></h1>
         </motion.div>
 
-        <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {projects.map((project: any, i: number) => (
             <motion.div
               key={project.id || i}
-              className={`project-card group relative overflow-hidden p-8 md:p-12 ${project.color || 'bg-gray-50'} rounded-[2.5rem] shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer min-h-[420px] flex flex-col justify-between`}
+              className={`group relative overflow-hidden p-8 md:p-12 ${project.color || 'bg-gray-50'} rounded-[2.5rem] shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer min-h-[420px] flex flex-col justify-between`}
               whileHover={{ y: -8 }}
               data-testid={`card-project-${project.id || i}`}
+              initial={{ opacity: 1 }}
+              onClick={() => navigate(`/projects/${project.id}`)}
             >
               <div className="w-full flex justify-end gap-2 mb-8">
                 {project.githubUrl && (
-                  <a 
-                    href={project.githubUrl} 
-                    target="_blank" 
+                  <a
+                    href={project.githubUrl}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="w-12 h-12 bg-white/50 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-black hover:text-white transition-all shadow-sm"
                     onClick={(e) => e.stopPropagation()}
@@ -67,9 +71,9 @@ export default function Projects() {
                   </a>
                 )}
                 {project.projectUrl && (
-                  <a 
-                    href={project.projectUrl} 
-                    target="_blank" 
+                  <a
+                    href={project.projectUrl}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="w-12 h-12 bg-white/50 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-black hover:text-white transition-all shadow-sm"
                     onClick={(e) => e.stopPropagation()}
@@ -82,7 +86,7 @@ export default function Projects() {
                   <ArrowUpRight className="w-6 h-6" />
                 </div>
               </div>
-              
+
               <div className="relative z-10">
                 <h3 className="font-display text-4xl font-semibold mb-4 leading-tight">{project.title}</h3>
                 <p className="text-black/60 text-lg mb-8 leading-relaxed max-w-md">{project.description}</p>

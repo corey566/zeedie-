@@ -1,12 +1,9 @@
 import { motion } from 'framer-motion';
-import { useRef, useEffect } from 'react';
-import gsap from 'gsap';
 import { Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchSkills } from '@/lib/api';
 
 export default function Skills() {
-  const containerRef = useRef<HTMLDivElement>(null);
   const { data: skills = [], isLoading } = useQuery({ queryKey: ['skills'], queryFn: fetchSkills });
 
   const skillGroups = skills.reduce((acc: any, skill: any) => {
@@ -17,32 +14,6 @@ export default function Skills() {
     acc[category].push(skill);
     return acc;
   }, {});
-
-  useEffect(() => {
-    if (containerRef.current && skills.length > 0) {
-      gsap.from(containerRef.current.querySelectorAll('.skill-card'), {
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: 'top 80%',
-        },
-        opacity: 0,
-        y: 30,
-        stagger: 0.1,
-        duration: 0.6,
-      });
-
-      gsap.from(containerRef.current.querySelectorAll('.skill-tag'), {
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: 'top 60%',
-        },
-        opacity: 0,
-        scale: 0.8,
-        stagger: 0.05,
-        duration: 0.4,
-      });
-    }
-  }, [skills]);
 
   if (isLoading) {
     return (
@@ -65,11 +36,12 @@ export default function Skills() {
           <h1 className="font-display text-5xl md:text-7xl mt-4 mb-8 leading-[0.9] tracking-tighter">Skills & <span className="text-black/40">Technologies</span></h1>
         </motion.div>
 
-        <div ref={containerRef} className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           {Object.entries(skillGroups).map(([category, categorySkills]: [string, any], i: number) => (
             <motion.div
               key={category}
-              className="skill-card group p-8 md:p-10 bg-white rounded-[2.5rem] shadow-sm hover:shadow-lg transition-all duration-300"
+              className="group p-8 md:p-10 bg-white rounded-[2.5rem] shadow-sm hover:shadow-lg transition-all duration-300"
+              initial={{ opacity: 1 }}
               whileHover={{ y: -5 }}
               data-testid={`card-skill-category-${category.toLowerCase()}`}
             >
@@ -78,7 +50,8 @@ export default function Skills() {
                 {categorySkills.map((skill: any, j: number) => (
                   <motion.span
                     key={skill.id || j}
-                    className="skill-tag px-4 py-2 text-base bg-black/5 text-black/80 rounded-xl font-medium group-hover:bg-black group-hover:text-white transition-colors cursor-default"
+                    className="px-4 py-2 text-base bg-black/5 text-black/80 rounded-xl font-medium group-hover:bg-black group-hover:text-white transition-colors cursor-default"
+                    initial={{ opacity: 1 }}
                     whileHover={{ scale: 1.05 }}
                     data-testid={`skill-${skill.name?.toLowerCase().replace(/\s+/g, '-')}`}
                   >
@@ -101,7 +74,8 @@ export default function Skills() {
             {['Responsive Design', 'Git Version Control', 'CI/CD Pipelines', 'Unit Testing', 'Agile/Scrum', 'Performance Optimization'].map((skill, i) => (
               <motion.span
                 key={i}
-                className="skill-tag px-4 py-2 text-base bg-black/5 text-black/80 rounded-xl font-medium"
+                className="px-4 py-2 text-base bg-black/5 text-black/80 rounded-xl font-medium"
+                initial={{ opacity: 1 }}
                 whileHover={{ scale: 1.05, backgroundColor: '#000', color: '#fff' }}
               >
                 {skill}
