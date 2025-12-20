@@ -26,8 +26,11 @@ function useSEO(title: string, description: string) {
   }, [title, description]);
 }
 
+import Blog from "@/pages/Blog";
+import BlogPost from "@/pages/BlogPost";
+
 function Router() {
-  useSEO("ZEEDIE | Creative Engineer", "Portfolio of Zee Die - Full Stack Developer & UI/UX Specialist");
+  useSEO("ZEEDIE | Creative Engineer", "Portfolio of ZEEDIE - Full Stack Developer & UI/UX Specialist");
   
   return (
     <Switch>
@@ -36,6 +39,8 @@ function Router() {
       <Route path="/experience" component={Experience} />
       <Route path="/projects" component={Projects} />
       <Route path="/skills" component={Skills} />
+      <Route path="/blog" component={Blog} />
+      <Route path="/blog/:id" component={BlogPost} />
       <Route path="/contact" component={Contact} />
       <Route component={NotFound} />
     </Switch>

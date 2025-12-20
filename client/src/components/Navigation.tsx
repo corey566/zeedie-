@@ -38,7 +38,7 @@ export default function Navigation() {
           <Link href="/">
             <div className="flex items-center px-4 py-2 bg-black text-white rounded-xl cursor-pointer hover:scale-105 transition-transform shrink-0">
               <span className="font-display font-bold tracking-tighter whitespace-nowrap">
-                ZEE DIE
+                ZEEDIE
               </span>
             </div>
           </Link>

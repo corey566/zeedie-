@@ -1,7 +1,7 @@
 import { Home, User, Briefcase, Layers, Cpu, Mail, FileText, Linkedin, Github, Twitter } from 'lucide-react';
 
 export const profile = {
-  name: "ZEE DIE",
+  name: "ZEEDIE",
   role: "Full Stack Developer",
   email: "hello@zeedie.dev",
   location: "Kingston, Jamaica",
@@ -88,6 +88,22 @@ export const blogs = [
     excerpt: "How reducing cognitive load improves conversion rates.",
     content: "Full article content would go here...",
     tags: ["Design", "UX"]
+  },
+  {
+    id: 'postgresql-scaling',
+    title: "Scaling PostgreSQL for Enterprise",
+    date: "Oct 05, 2024",
+    excerpt: "Best practices for indexing, partitioning, and query optimization.",
+    content: "Full article content would go here...",
+    tags: ["Database", "Backend"]
+  },
+  {
+    id: 'ai-integration',
+    title: "Integrating AI into Legacy Systems",
+    date: "Sep 22, 2024",
+    excerpt: "Strategies for modernizing existing applications with LLM capabilities.",
+    content: "Full article content would go here...",
+    tags: ["AI", "Legacy Code"]
   }
 ];
 

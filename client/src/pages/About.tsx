@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useRef, useEffect } from 'react';
 import gsap from 'gsap';
+import stockImage from '@assets/stock_images/professional_develop_ccee3624.jpg';
 
 export default function About() {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -22,17 +23,23 @@ export default function About() {
 
   return (
     <div className="min-h-screen bg-[#f2f2f2] text-foreground font-sans pt-32 px-4 md:px-12 pb-20">
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="bg-white p-8 md:p-12 rounded-[2.5rem] shadow-sm mb-8"
+          className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-8"
         >
-          <span className="inline-block font-mono text-xs uppercase tracking-widest text-black/60 mb-4 px-3 py-1 bg-black/5 rounded-full">About Me</span>
-          <h1 className="font-display text-5xl md:text-7xl mt-4 mb-8 leading-[0.9] tracking-tighter">
-            Full-Stack Engineer with a Focus on <span className="text-black/40">Enterprise Solutions</span>
-          </h1>
+          <div className="md:col-span-8 bg-white p-8 md:p-12 rounded-[2.5rem] shadow-sm flex flex-col justify-center">
+            <span className="inline-block font-mono text-xs uppercase tracking-widest text-black/60 mb-4 px-3 py-1 bg-black/5 rounded-full w-fit">About Me</span>
+            <h1 className="font-display text-5xl md:text-7xl mt-4 leading-[0.9] tracking-tighter">
+              Full-Stack Engineer with a Focus on <span className="text-black/40">Enterprise Solutions</span>
+            </h1>
+          </div>
+          
+          <div className="md:col-span-4 bg-white p-2 rounded-[2.5rem] shadow-sm h-[400px] md:h-auto overflow-hidden relative">
+             <img src={stockImage} alt="Profile" className="w-full h-full object-cover rounded-[2rem] filter grayscale hover:grayscale-0 transition-all duration-500" />
+          </div>
         </motion.div>
 
         <div ref={sectionRef} className="space-y-6">

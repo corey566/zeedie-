@@ -59,7 +59,7 @@ export default function Home() {
       </div>
 
       {/* Main Content Wrapper */}
-      <div className="relative z-10 flex flex-col min-h-screen px-4 pt-28 pb-4 md:px-6 md:pb-6 gap-6">
+      <div className="relative z-10 flex flex-col min-h-screen px-4 pt-28 pb-4 md:px-6 md:pb-6 gap-6 w-full max-w-full overflow-x-hidden">
         
         {/* Hero Card Frame */}
         <div className="relative w-full h-[85vh] md:h-[90vh] rounded-[2.5rem] md:rounded-[3.5rem] overflow-hidden border-[4px] border-white/50 shadow-2xl bg-white/10 backdrop-blur-sm isolate">
@@ -101,7 +101,7 @@ export default function Home() {
                   Full Stack Developer
                 </span>
                 <h2 className="font-display text-3xl md:text-5xl font-black uppercase tracking-tight">
-                  ZEE DIE
+                  ZEEDIE
                 </h2>
               </div>
 
@@ -199,7 +199,7 @@ export default function Home() {
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white font-bold text-xs">ZD</div>
                       <div>
-                        <p className="font-bold text-sm">ZEE DIE</p>
+                        <p className="font-bold text-sm">ZEEDIE</p>
                         <p className="text-xs text-gray-500">{post.date}</p>
                       </div>
                     </div>
@@ -290,19 +290,23 @@ export default function Home() {
              <h2 className="text-3xl font-display mb-8">Latest Thoughts</h2>
              
              <div className="flex flex-col gap-6">
-                {blogs.map((post, i) => (
-                   <div key={i} className="group cursor-pointer">
-                      <div className="flex justify-between items-baseline mb-2">
-                        <h4 className="text-xl font-bold group-hover:text-black/60 transition-colors">{post.title}</h4>
-                        <span className="text-sm text-black/40 whitespace-nowrap ml-4">{post.date}</span>
-                      </div>
-                      <p className="text-sm text-black/50 mb-2">{post.excerpt}</p>
-                      <div className="h-[1px] w-full bg-black/10 group-hover:bg-black/30 transition-colors"></div>
-                   </div>
+                {blogs.slice(0, 3).map((post, i) => (
+                   <Link key={i} href={`/blog/${post.id}`}>
+                     <div className="group cursor-pointer">
+                        <div className="flex justify-between items-baseline mb-2">
+                          <h4 className="text-xl font-bold group-hover:text-black/60 transition-colors">{post.title}</h4>
+                          <span className="text-sm text-black/40 whitespace-nowrap ml-4">{post.date}</span>
+                        </div>
+                        <p className="text-sm text-black/50 mb-2">{post.excerpt}</p>
+                        <div className="h-[1px] w-full bg-black/10 group-hover:bg-black/30 transition-colors"></div>
+                     </div>
+                   </Link>
                 ))}
              </div>
              <div className="mt-auto pt-8">
-               <button className="text-black font-medium hover:opacity-60 transition-opacity">Read all articles &rarr;</button>
+               <Link href="/blog">
+                 <button className="text-black font-medium hover:opacity-60 transition-opacity">Read all articles &rarr;</button>
+               </Link>
              </div>
           </div>
 
@@ -314,7 +318,7 @@ export default function Home() {
             ZEEDIE
           </h2>
           <div className="flex flex-col md:flex-row justify-center items-center gap-6 mt-8 text-sm font-medium opacity-60">
-            <span>&copy; 2025 Zee Die Portfolio</span>
+            <span>&copy; 2025 ZEEDIE Portfolio</span>
             <span className="hidden md:inline">&bull;</span>
             <div className="flex gap-6">
               <a href="#" className="hover:text-black">Twitter</a>
