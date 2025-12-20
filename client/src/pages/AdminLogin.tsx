@@ -1,39 +1,38 @@
-
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Lock, Loader2 } from 'lucide-react';
-import { useLocation } from 'wouter';
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Lock, Loader2 } from "lucide-react";
+import { useLocation } from "wouter";
 
 export default function AdminLogin() {
   const [, setLocation] = useLocation();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsLoading(true);
 
     try {
-      const res = await fetch('/api/admin/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
       });
 
       if (!res.ok) {
-        setError('Invalid credentials');
+        setError("Invalid credentials");
         setIsLoading(false);
         return;
       }
 
       const data = await res.json();
-      localStorage.setItem('adminToken', data.token);
-      setLocation('/admin');
+      localStorage.setItem("adminToken", data.token);
+      setLocation("/admin");
     } catch (err) {
-      setError('Login failed. Please try again.');
+      setError("Login failed. Please try again.");
       setIsLoading(false);
     }
   };
@@ -50,7 +49,7 @@ export default function AdminLogin() {
           <div className="flex items-center justify-center mb-8">
             <Lock className="w-12 h-12 text-black" />
           </div>
-          
+
           <h1 className="font-display text-4xl md:text-5xl text-center mb-2 leading-[0.9] tracking-tighter">
             Code <span className="text-black/40">Captain</span>
           </h1>
@@ -58,7 +57,9 @@ export default function AdminLogin() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-black/60 mb-2">Username</label>
+              <label className="block text-sm font-medium text-black/60 mb-2">
+                Username
+              </label>
               <input
                 type="text"
                 value={username}
@@ -70,7 +71,9 @@ export default function AdminLogin() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-black/60 mb-2">Password</label>
+              <label className="block text-sm font-medium text-black/60 mb-2">
+                Password
+              </label>
               <input
                 type="password"
                 value={password}
@@ -91,8 +94,12 @@ export default function AdminLogin() {
               disabled={isLoading}
               className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-black text-white rounded-full font-medium hover:bg-black/80 transition-colors disabled:opacity-50"
             >
-              {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Lock className="w-4 h-4" />}
-              {isLoading ? 'Logging in...' : 'Access Control Panel'}
+              {isLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Lock className="w-4 h-4" />
+              )}
+              {isLoading ? "Logging in..." : "Access Control Panel"}
             </button>
           </form>
 
@@ -101,6 +108,30 @@ export default function AdminLogin() {
           </p>
         </div>
       </motion.div>
+      {/* Footer */}
+      <footer className="mt-20 md:mt-32 mb-10 max-w-7xl mx-auto w-full text-center">
+        <h2 className="font-display text-[10vw] leading-none tracking-tight text-black/10 select-none">
+          ZEEDIE
+        </h2>
+        <div className="flex flex-col md:flex-row justify-center items-center gap-6 mt-8 text-sm font-medium opacity-60">
+          <span>&copy; 2025 ZEEDIE Portfolio</span>
+          <span className="hidden md:inline">&bull;</span>
+          <div className="flex gap-6">
+            <a href="#" className="hover:text-black">
+              Twitter
+            </a>
+            <a href="#" className="hover:text-black">
+              LinkedIn
+            </a>
+            <a href="#" className="hover:text-black">
+              GitHub
+            </a>
+            <a href="#" className="hover:text-black">
+              Instagram
+            </a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
