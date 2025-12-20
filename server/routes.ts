@@ -22,6 +22,11 @@ export async function registerRoutes(
   // Admin authentication routes
   app.post("/api/admin/login", async (req, res) => {
     try {
+      if (!AUTH_CONFIG.isConfigured()) {
+        res.status(503).json({ error: "Admin credentials not configured. Set ADMIN_USERNAME and ADMIN_PASSWORD environment variables." });
+        return;
+      }
+      
       const { username, password } = req.body;
       
       if (username === AUTH_CONFIG.username && password === AUTH_CONFIG.password) {
