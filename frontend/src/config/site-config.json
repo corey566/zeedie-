@@ -1,0 +1,16 @@
+{
+  "hero": {
+    "title": "TECH",
+    "subtitle": "LEADER",
+    "description": "IT Manager / Technical Operations Lead",
+    "established": "EST. 2021",
+    "version": "PORTFOLIO V2"
+  },
+  "seo": {
+    "title": "Mohamed Yazeed Faumy | IT Manager & Technical Lead",
+    "description": "Portfolio of Mohamed Yazeed Faumy - IT Manager / Technical Operations Lead with 5+ years of experience in cloud infrastructure, VoIP systems, and SaaS platforms.",
+    "keywords": "IT Manager, Technical Lead, Cloud Infrastructure, AWS, DevOps, VoIP, SaaS, Project Management, Python, API Development",
+    "author": "Mohamed Yazeed Faumy",
+    "ogImage": "/opengraph.jpg"
+  }
+}

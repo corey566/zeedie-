@@ -29,8 +29,14 @@ export async function fetchFeaturedProjects() {
 }
 
 export async function fetchBlogPosts() {
-  const res = await fetch('/api/blog/all');
+  const res = await fetch('/api/blog');
   if (!res.ok) throw new Error('Failed to fetch blog posts');
+  return res.json();
+}
+
+export async function fetchAllBlogPosts() {
+  const res = await fetch('/api/blog/all');
+  if (!res.ok) throw new Error('Failed to fetch all blog posts');
   return res.json();
 }
 

@@ -1,17 +1,16 @@
-
 {
   "hero": {
-    "title": "CREATIVE",
-    "subtitle": "ENGINEER",
-    "description": "Full Stack Developer",
-    "established": "EST. 2024",
-    "version": "PORTFOLIO V1"
+    "title": "TECH",
+    "subtitle": "LEADER",
+    "description": "IT Manager / Technical Operations Lead",
+    "established": "EST. 2021",
+    "version": "PORTFOLIO V2"
   },
   "seo": {
-    "title": "ZEEDIE | Creative Engineer",
-    "description": "Portfolio of ZEEDIE - Full Stack Developer & UI/UX Specialist",
-    "keywords": "full stack developer, web developer, UI/UX, portfolio, creative engineer",
-    "author": "ZEEDIE",
+    "title": "Mohamed Yazeed Faumy | IT Manager & Technical Lead",
+    "description": "Portfolio of Mohamed Yazeed Faumy - IT Manager / Technical Operations Lead with 5+ years of experience in cloud infrastructure, VoIP systems, and SaaS platforms.",
+    "keywords": "IT Manager, Technical Lead, Cloud Infrastructure, AWS, DevOps, VoIP, SaaS, Project Management, Python, API Development",
+    "author": "Mohamed Yazeed Faumy",
     "ogImage": "/opengraph.jpg"
   }
 }

@@ -6,7 +6,7 @@ import { Link } from 'wouter';
 import { 
   fetchProfile, 
   fetchProjects, 
-  fetchBlogPosts, 
+  fetchAllBlogPosts, 
   fetchExperience, 
   fetchSkills, 
   fetchSocials,
@@ -498,7 +498,7 @@ function ProjectsEditor() {
 
 function BlogEditor() {
   const queryClient = useQueryClient();
-  const { data: posts = [], isLoading } = useQuery({ queryKey: ['blog-posts'], queryFn: fetchBlogPosts });
+  const { data: posts = [], isLoading } = useQuery({ queryKey: ['blog-posts-all'], queryFn: fetchAllBlogPosts });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<any>(null);
   const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
