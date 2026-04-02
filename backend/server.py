@@ -752,6 +752,12 @@ async def get_theme():
 @app.put("/api/theme")
 async def update_theme(data: dict):
     existing = await db.theme_settings.find_one()
+    # Remove any ObjectId from data to avoid serialization issues
+    if "id" in data:
+        del data["id"]
+    if "_id" in data:
+        del data["_id"]
+    
     if existing:
         await db.theme_settings.update_one({"_id": existing["_id"]}, {"$set": data})
     else:

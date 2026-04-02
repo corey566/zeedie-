@@ -22,32 +22,20 @@ Improve developer portfolio - fix content conflicts between blogs/projects, add 
 - [x] Contact information with social links
 - [x] Admin panel for content management
 
-## What's Been Implemented (April 1, 2026)
+## What's Been Implemented
+
+### Phase 1 (April 1, 2026)
 1. **Backend Migration** - Migrated from Replit PostgreSQL to Emergent FastAPI + MongoDB
-   - Created `/app/backend/server.py` with 13+ API endpoints
-   - All CRUD operations for projects, blogs, experience, skills, socials
-   
-2. **Content Conflict Fix** - Separated blog API endpoints:
-   - `/api/blog` - Returns only published posts (public)
-   - `/api/blog/all` - Returns all posts (admin)
+2. **Content Conflict Fix** - Separated blog API endpoints
+3. **3D Immersive Experience** - Enhanced ThreeScene.tsx with particles, shapes
+4. **Resume Data Integration** - Updated with actual content
 
-3. **3D Immersive Experience** - Enhanced ThreeScene.tsx:
-   - Animated floating particles
-   - Distorted sphere with metallic material
-   - Wireframe icosahedron
-   - Torus knot decorations
-   - Mouse-following interactive element
-   - Grid plane for depth
-
-4. **Resume Data Integration** - Updated with actual content:
-   - Port City BPO, Code Studio Global, Freelance, Sterling Carter Technology
-   - Skills: AWS, Python, VoIP, Project Management, etc.
-   - Contact: 2002yazeedfaumy@gmail.com
-
-5. **UI Updates**:
-   - Navigation brand: "ZEEDIE" → "MYF"
-   - Footer updated with dynamic profile name
-   - Modern typography with Syne + DM Sans fonts
+### Phase 2 (April 2, 2026)
+1. **Dark Mode Toggle** - Full dark mode support with theme persistence
+2. **PDF Resume Download** - Generate and download resume as text file
+3. **GitHub Integration APIs** - Real GitHub contributions sync endpoint
+4. **Data Export/Import** - JSON and SQL export for easy deployment
+5. **Project Detail Pages** - Working with content sections support
 
 ## Tech Stack
 - **Frontend**: React 19, Vite 7, TypeScript, Tailwind CSS 4
@@ -55,40 +43,48 @@ Improve developer portfolio - fix content conflicts between blogs/projects, add 
 - **Backend**: FastAPI, Motor (MongoDB async driver)
 - **Database**: MongoDB
 
-## P0/P1/P2 Features Remaining
+## API Endpoints (Complete)
 
-### P0 (Critical) - DONE
-- [x] Fix content conflict bugs
-- [x] 3D Three.js animations
-- [x] Resume data integration
-
-### P1 (High Priority)
-- [ ] GitHub API integration for real contribution data
-- [ ] LinkedIn API integration for real posts
-- [ ] Project detail pages with sections
-- [ ] Blog post content editor (TipTap)
-
-### P2 (Nice to Have)
-- [ ] Dark mode toggle
-- [ ] PDF resume download
-- [ ] Contact form with email notification
-- [ ] Analytics tracking
-
-## API Endpoints
+### Core
 | Endpoint | Method | Description |
 |----------|--------|-------------|
+| /api/health | GET | Health check |
 | /api/profile | GET/PUT | Profile data |
+| /api/site-config | GET/PUT | Site configuration |
+
+### Content
+| Endpoint | Method | Description |
+|----------|--------|-------------|
 | /api/projects | GET/POST | All projects |
 | /api/projects/featured | GET | Featured only |
 | /api/projects/:id | GET/PUT/DELETE | Single project |
+| /api/projects/:id/sections | GET/POST | Project sections |
 | /api/blog | GET | Published posts |
 | /api/blog/all | GET | All posts |
-| /api/blog/:id | GET/PUT/DELETE | Single post |
 | /api/experience | GET/POST | Work experience |
 | /api/skills | GET/POST | Skills list |
 | /api/socials | GET/POST | Social links |
-| /api/site-config | GET/PUT | Site configuration |
-| /api/seed | POST | Seed database |
+
+### New Features
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| /api/theme | GET/PUT | Theme settings |
+| /api/resume/generate | GET | Generate resume data |
+| /api/export | GET | Export all data as JSON |
+| /api/import | POST | Import data from JSON |
+| /api/github-sync-real | POST | Sync real GitHub contributions |
+| /api/github-repos | GET | Fetch GitHub repos |
+
+## Data Export Files
+- `/app/portfolio_data_export.json` - MongoDB JSON export
+- `/app/portfolio_data_import.sql` - PostgreSQL SQL statements
+
+## Remaining/Future Features
+- [ ] Real LinkedIn API integration (requires OAuth)
+- [ ] Blog post content editor improvements
+- [ ] Contact form with email notification
+- [ ] Analytics tracking
+- [ ] Image upload for projects
 
 ## Admin Access
 - URL: /admin
