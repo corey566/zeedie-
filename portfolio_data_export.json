@@ -1,0 +1,1393 @@
+{
+  "metadata": {
+    "exported_at": "2026-04-02T10:37:48.123820",
+    "database": "portfolio",
+    "version": "1.0"
+  },
+  "collections": {
+    "profile": [
+      {
+        "_id": "69ccb94c0a97400c3f5fae02",
+        "name": "Mohamed Yazeed Faumy",
+        "role": "IT Manager / Technical Operations Lead",
+        "email": "2002yazeedfaumy@gmail.com",
+        "location": "Wattala, Sri Lanka",
+        "bio": "IT Manager / Technical Operations Lead with 5+ years of experience managing cloud infrastructure, VoIP systems, SaaS platforms, and high-availability environments.",
+        "yearsExperience": 5,
+        "projectsShipped": 50
+      }
+    ],
+    "projects": [
+      {
+        "_id": "69ccb94c0a97400c3f5fae03",
+        "title": "Cloud Infrastructure Management",
+        "description": "AWS and Linux VPS environments management ensuring high availability and system stability for enterprise clients",
+        "technologies": [
+          "AWS",
+          "Linux",
+          "VPS",
+          "Docker",
+          "CI/CD"
+        ],
+        "color": "bg-blue-50",
+        "featured": true,
+        "order": 1,
+        "createdAt": "2026-04-01T06:21:00.968057+00:00"
+      },
+      {
+        "_id": "69ccb94c0a97400c3f5fae04",
+        "title": "Backend Monitoring Systems",
+        "description": "Built Python-based monitoring and alert systems to detect issues and automatically optimize system performance",
+        "technologies": [
+          "Python",
+          "Prometheus",
+          "Grafana",
+          "APIs"
+        ],
+        "color": "bg-green-50",
+        "featured": true,
+        "order": 2,
+        "createdAt": "2026-04-01T06:21:00.968069+00:00"
+      },
+      {
+        "_id": "69ccb94c0a97400c3f5fae05",
+        "title": "VoIP & Telecom Solutions",
+        "description": "Managed and maintained VoIP systems for enterprise communication with 100% uptime during campaigns",
+        "technologies": [
+          "VoIP",
+          "SIP",
+          "Asterisk",
+          "FreePBX"
+        ],
+        "color": "bg-purple-50",
+        "featured": true,
+        "order": 3,
+        "createdAt": "2026-04-01T06:21:00.968072+00:00"
+      },
+      {
+        "_id": "69ccb94c0a97400c3f5fae06",
+        "title": "SaaS Platform Development",
+        "description": "Led multiple SaaS and web application projects from planning to production release",
+        "technologies": [
+          "React",
+          "Node.js",
+          "PostgreSQL",
+          "Stripe"
+        ],
+        "color": "bg-orange-50",
+        "featured": true,
+        "order": 4,
+        "createdAt": "2026-04-01T06:21:00.968075+00:00"
+      }
+    ],
+    "blog_posts": [
+      {
+        "_id": "69ccb94d0a97400c3f5fae19",
+        "title": "Building High-Availability Cloud Infrastructure",
+        "excerpt": "Best practices for AWS and Linux VPS management in enterprise environments.",
+        "content": "<p>Managing cloud infrastructure requires careful planning, monitoring, and optimization.</p>",
+        "tags": [
+          "Cloud",
+          "AWS",
+          "DevOps"
+        ],
+        "published": true,
+        "publishedDate": "2026-04-01T06:21:01.036344+00:00"
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae1a",
+        "title": "Automating IT Operations with Python",
+        "excerpt": "How Python scripts can transform your IT monitoring and alert systems.",
+        "content": "<p>Automation is key to scaling IT operations.</p>",
+        "tags": [
+          "Python",
+          "Automation",
+          "IT"
+        ],
+        "published": true,
+        "publishedDate": "2026-04-01T06:21:01.036357+00:00"
+      }
+    ],
+    "experience": [
+      {
+        "_id": "69ccb94c0a97400c3f5fae07",
+        "role": "IT Project Coordinator / Technical Lead",
+        "company": "Port City BPO",
+        "location": "Sri Lanka",
+        "period": "January 2026 \u2013 Present",
+        "highlights": [
+          "Led decision-making across IT infrastructure including servers, VoIP systems, applications, and software platforms",
+          "Managed and maintained core systems on AWS and Linux VPS environments",
+          "Built backend monitoring and alert systems using Python",
+          "Designed and delivered custom internal and external applications"
+        ],
+        "order": 1,
+        "current": true,
+        "createdAt": "2026-04-01T06:21:00.987242+00:00"
+      },
+      {
+        "_id": "69ccb94c0a97400c3f5fae08",
+        "role": "Senior IT Manager / Project Lead",
+        "company": "Code Studio Global",
+        "location": "Sri Lanka",
+        "period": "May 2025 \u2013 January 2026",
+        "highlights": [
+          "Led multiple SaaS and web application projects from planning to production release",
+          "Defined project scope, timelines, milestones, and deliverables",
+          "Coordinated developers, designers, and stakeholders"
+        ],
+        "order": 2,
+        "current": false,
+        "createdAt": "2026-04-01T06:21:00.987255+00:00"
+      },
+      {
+        "_id": "69ccb94c0a97400c3f5fae09",
+        "role": "IT Consultant / Project-Based Lead",
+        "company": "Freelance | Remote",
+        "location": "Remote",
+        "period": "January 2023 \u2013 January 2024",
+        "highlights": [
+          "Delivered ERP, CRM, and automation projects for international clients",
+          "Managed full project lifecycle including planning, execution, testing, and handover"
+        ],
+        "order": 3,
+        "current": false,
+        "createdAt": "2026-04-01T06:21:00.987257+00:00"
+      },
+      {
+        "_id": "69ccb94c0a97400c3f5fae0a",
+        "role": "DevOps Engineer",
+        "company": "Sterling Carter Technology Distributors",
+        "location": "Kingston, Jamaica",
+        "period": "January 2021 \u2013 May 2023",
+        "highlights": [
+          "Performed Log File Analysis to identify crawl budget inefficiencies",
+          "Coded Python scripts for large-scale data cleansing and MySQL database optimization",
+          "Developed and maintained automated CI/CD pipelines"
+        ],
+        "order": 4,
+        "current": false,
+        "createdAt": "2026-04-01T06:21:00.987259+00:00"
+      }
+    ],
+    "skills": [
+      {
+        "_id": "69ccb94d0a97400c3f5fae0b",
+        "name": "Team Leadership",
+        "category": "Management",
+        "order": 1
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae0c",
+        "name": "Project Management",
+        "category": "Management",
+        "order": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae0d",
+        "name": "AWS",
+        "category": "Cloud & DevOps",
+        "order": 1
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae0e",
+        "name": "Linux VPS",
+        "category": "Cloud & DevOps",
+        "order": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae0f",
+        "name": "Docker",
+        "category": "Cloud & DevOps",
+        "order": 3
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae10",
+        "name": "Python",
+        "category": "Backend",
+        "order": 1
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae11",
+        "name": "API Development",
+        "category": "Backend",
+        "order": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae12",
+        "name": "MySQL",
+        "category": "Backend",
+        "order": 3
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae13",
+        "name": "VoIP Systems",
+        "category": "Platforms",
+        "order": 1
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae14",
+        "name": "SaaS Platforms",
+        "category": "Platforms",
+        "order": 2
+      }
+    ],
+    "socials": [
+      {
+        "_id": "69ccb94d0a97400c3f5fae15",
+        "platform": "Email",
+        "label": "Email",
+        "value": "2002yazeedfaumy@gmail.com",
+        "href": "mailto:2002yazeedfaumy@gmail.com",
+        "order": 1
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae16",
+        "platform": "LinkedIn",
+        "label": "LinkedIn",
+        "value": "linkedin.com/in/yazeedfaumy",
+        "href": "https://linkedin.com/in/yazeedfaumy",
+        "order": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae17",
+        "platform": "GitHub",
+        "label": "GitHub",
+        "value": "github.com/yazeedfaumy",
+        "href": "https://github.com/yazeedfaumy",
+        "order": 3
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae18",
+        "platform": "Phone",
+        "label": "Phone",
+        "value": "+94 75 920 1455",
+        "href": "tel:+94759201455",
+        "order": 4
+      }
+    ],
+    "footer_links": [],
+    "linkedin_posts": [
+      {
+        "_id": "69ccb94d0a97400c3f5fae1b",
+        "content": "Excited to share that we achieved 99.99% uptime across all our cloud infrastructure this quarter!",
+        "date": "2 days ago",
+        "likes": 78,
+        "comments": 15,
+        "createdAt": "2026-04-01T06:21:01.046485+00:00"
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae1c",
+        "content": "Just wrapped up a successful SaaS platform launch with the team at Code Studio Global.",
+        "date": "1 week ago",
+        "likes": 52,
+        "comments": 12,
+        "createdAt": "2026-04-01T06:21:01.046495+00:00"
+      }
+    ],
+    "about_blocks": [],
+    "project_sections": [],
+    "site_config": [
+      {
+        "_id": "69ccb94d0a97400c3f5faed1",
+        "hero": {
+          "title": "TECH",
+          "subtitle": "LEADER",
+          "description": "IT Manager / Technical Operations Lead",
+          "established": "EST. 2021",
+          "version": "PORTFOLIO V2"
+        },
+        "seo": {
+          "title": "Mohamed Yazeed Faumy | IT Manager & Technical Lead",
+          "description": "Portfolio of Mohamed Yazeed Faumy - IT Manager / Technical Operations Lead with 5+ years of experience.",
+          "keywords": "IT Manager, Technical Lead, Cloud Infrastructure, AWS, DevOps",
+          "author": "Mohamed Yazeed Faumy",
+          "ogImage": "/opengraph.jpg"
+        }
+      }
+    ],
+    "github_contributions": [
+      {
+        "_id": "69ccb94d0a97400c3f5fae1d",
+        "date": "2025-10-04",
+        "count": 8,
+        "level": 4
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae1e",
+        "date": "2025-10-05",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae1f",
+        "date": "2025-10-06",
+        "count": 5,
+        "level": 3
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae20",
+        "date": "2025-10-07",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae21",
+        "date": "2025-10-08",
+        "count": 3,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae22",
+        "date": "2025-10-09",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae23",
+        "date": "2025-10-10",
+        "count": 4,
+        "level": 3
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae24",
+        "date": "2025-10-11",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae25",
+        "date": "2025-10-12",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae26",
+        "date": "2025-10-13",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae27",
+        "date": "2025-10-14",
+        "count": 7,
+        "level": 4
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae28",
+        "date": "2025-10-15",
+        "count": 2,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae29",
+        "date": "2025-10-16",
+        "count": 6,
+        "level": 4
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae2a",
+        "date": "2025-10-17",
+        "count": 7,
+        "level": 4
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae2b",
+        "date": "2025-10-18",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae2c",
+        "date": "2025-10-19",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae2d",
+        "date": "2025-10-20",
+        "count": 3,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae2e",
+        "date": "2025-10-21",
+        "count": 4,
+        "level": 3
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae2f",
+        "date": "2025-10-22",
+        "count": 2,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae30",
+        "date": "2025-10-23",
+        "count": 3,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae31",
+        "date": "2025-10-24",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae32",
+        "date": "2025-10-25",
+        "count": 1,
+        "level": 1
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae33",
+        "date": "2025-10-26",
+        "count": 1,
+        "level": 1
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae34",
+        "date": "2025-10-27",
+        "count": 1,
+        "level": 1
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae35",
+        "date": "2025-10-28",
+        "count": 3,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae36",
+        "date": "2025-10-29",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae37",
+        "date": "2025-10-30",
+        "count": 7,
+        "level": 4
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae38",
+        "date": "2025-10-31",
+        "count": 3,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae39",
+        "date": "2025-11-01",
+        "count": 5,
+        "level": 3
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae3a",
+        "date": "2025-11-02",
+        "count": 4,
+        "level": 3
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae3b",
+        "date": "2025-11-03",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae3c",
+        "date": "2025-11-04",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae3d",
+        "date": "2025-11-05",
+        "count": 7,
+        "level": 4
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae3e",
+        "date": "2025-11-06",
+        "count": 2,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae3f",
+        "date": "2025-11-07",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae40",
+        "date": "2025-11-08",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae41",
+        "date": "2025-11-09",
+        "count": 8,
+        "level": 4
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae42",
+        "date": "2025-11-10",
+        "count": 3,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae43",
+        "date": "2025-11-11",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae44",
+        "date": "2025-11-12",
+        "count": 1,
+        "level": 1
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae45",
+        "date": "2025-11-13",
+        "count": 4,
+        "level": 3
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae46",
+        "date": "2025-11-14",
+        "count": 2,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae47",
+        "date": "2025-11-15",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae48",
+        "date": "2025-11-16",
+        "count": 6,
+        "level": 4
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae49",
+        "date": "2025-11-17",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae4a",
+        "date": "2025-11-18",
+        "count": 4,
+        "level": 3
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae4b",
+        "date": "2025-11-19",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae4c",
+        "date": "2025-11-20",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae4d",
+        "date": "2025-11-21",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae4e",
+        "date": "2025-11-22",
+        "count": 8,
+        "level": 4
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae4f",
+        "date": "2025-11-23",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae50",
+        "date": "2025-11-24",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae51",
+        "date": "2025-11-25",
+        "count": 1,
+        "level": 1
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae52",
+        "date": "2025-11-26",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae53",
+        "date": "2025-11-27",
+        "count": 3,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae54",
+        "date": "2025-11-28",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae55",
+        "date": "2025-11-29",
+        "count": 8,
+        "level": 4
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae56",
+        "date": "2025-11-30",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae57",
+        "date": "2025-12-01",
+        "count": 5,
+        "level": 3
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae58",
+        "date": "2025-12-02",
+        "count": 4,
+        "level": 3
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae59",
+        "date": "2025-12-03",
+        "count": 2,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae5a",
+        "date": "2025-12-04",
+        "count": 6,
+        "level": 4
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae5b",
+        "date": "2025-12-05",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae5c",
+        "date": "2025-12-06",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae5d",
+        "date": "2025-12-07",
+        "count": 4,
+        "level": 3
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae5e",
+        "date": "2025-12-08",
+        "count": 3,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae5f",
+        "date": "2025-12-09",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae60",
+        "date": "2025-12-10",
+        "count": 1,
+        "level": 1
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae61",
+        "date": "2025-12-11",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae62",
+        "date": "2025-12-12",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae63",
+        "date": "2025-12-13",
+        "count": 3,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae64",
+        "date": "2025-12-14",
+        "count": 2,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae65",
+        "date": "2025-12-15",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae66",
+        "date": "2025-12-16",
+        "count": 8,
+        "level": 4
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae67",
+        "date": "2025-12-17",
+        "count": 1,
+        "level": 1
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae68",
+        "date": "2025-12-18",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae69",
+        "date": "2025-12-19",
+        "count": 3,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae6a",
+        "date": "2025-12-20",
+        "count": 6,
+        "level": 4
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae6b",
+        "date": "2025-12-21",
+        "count": 4,
+        "level": 3
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae6c",
+        "date": "2025-12-22",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae6d",
+        "date": "2025-12-23",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae6e",
+        "date": "2025-12-24",
+        "count": 2,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae6f",
+        "date": "2025-12-25",
+        "count": 4,
+        "level": 3
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae70",
+        "date": "2025-12-26",
+        "count": 2,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae71",
+        "date": "2025-12-27",
+        "count": 2,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae72",
+        "date": "2025-12-28",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae73",
+        "date": "2025-12-29",
+        "count": 4,
+        "level": 3
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae74",
+        "date": "2025-12-30",
+        "count": 3,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae75",
+        "date": "2025-12-31",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae76",
+        "date": "2026-01-01",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae77",
+        "date": "2026-01-02",
+        "count": 2,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae78",
+        "date": "2026-01-03",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae79",
+        "date": "2026-01-04",
+        "count": 5,
+        "level": 3
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae7a",
+        "date": "2026-01-05",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae7b",
+        "date": "2026-01-06",
+        "count": 8,
+        "level": 4
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae7c",
+        "date": "2026-01-07",
+        "count": 5,
+        "level": 3
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae7d",
+        "date": "2026-01-08",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae7e",
+        "date": "2026-01-09",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae7f",
+        "date": "2026-01-10",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae80",
+        "date": "2026-01-11",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae81",
+        "date": "2026-01-12",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae82",
+        "date": "2026-01-13",
+        "count": 4,
+        "level": 3
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae83",
+        "date": "2026-01-14",
+        "count": 5,
+        "level": 3
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae84",
+        "date": "2026-01-15",
+        "count": 8,
+        "level": 4
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae85",
+        "date": "2026-01-16",
+        "count": 6,
+        "level": 4
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae86",
+        "date": "2026-01-17",
+        "count": 1,
+        "level": 1
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae87",
+        "date": "2026-01-18",
+        "count": 4,
+        "level": 3
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae88",
+        "date": "2026-01-19",
+        "count": 3,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae89",
+        "date": "2026-01-20",
+        "count": 1,
+        "level": 1
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae8a",
+        "date": "2026-01-21",
+        "count": 4,
+        "level": 3
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae8b",
+        "date": "2026-01-22",
+        "count": 2,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae8c",
+        "date": "2026-01-23",
+        "count": 3,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae8d",
+        "date": "2026-01-24",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae8e",
+        "date": "2026-01-25",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae8f",
+        "date": "2026-01-26",
+        "count": 5,
+        "level": 3
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae90",
+        "date": "2026-01-27",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae91",
+        "date": "2026-01-28",
+        "count": 8,
+        "level": 4
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae92",
+        "date": "2026-01-29",
+        "count": 4,
+        "level": 3
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae93",
+        "date": "2026-01-30",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae94",
+        "date": "2026-01-31",
+        "count": 2,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae95",
+        "date": "2026-02-01",
+        "count": 2,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae96",
+        "date": "2026-02-02",
+        "count": 3,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae97",
+        "date": "2026-02-03",
+        "count": 3,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae98",
+        "date": "2026-02-04",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae99",
+        "date": "2026-02-05",
+        "count": 6,
+        "level": 4
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae9a",
+        "date": "2026-02-06",
+        "count": 1,
+        "level": 1
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae9b",
+        "date": "2026-02-07",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae9c",
+        "date": "2026-02-08",
+        "count": 3,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae9d",
+        "date": "2026-02-09",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae9e",
+        "date": "2026-02-10",
+        "count": 2,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5fae9f",
+        "date": "2026-02-11",
+        "count": 5,
+        "level": 3
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faea0",
+        "date": "2026-02-12",
+        "count": 4,
+        "level": 3
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faea1",
+        "date": "2026-02-13",
+        "count": 3,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faea2",
+        "date": "2026-02-14",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faea3",
+        "date": "2026-02-15",
+        "count": 8,
+        "level": 4
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faea4",
+        "date": "2026-02-16",
+        "count": 3,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faea5",
+        "date": "2026-02-17",
+        "count": 6,
+        "level": 4
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faea6",
+        "date": "2026-02-18",
+        "count": 5,
+        "level": 3
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faea7",
+        "date": "2026-02-19",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faea8",
+        "date": "2026-02-20",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faea9",
+        "date": "2026-02-21",
+        "count": 4,
+        "level": 3
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faeaa",
+        "date": "2026-02-22",
+        "count": 2,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faeab",
+        "date": "2026-02-23",
+        "count": 7,
+        "level": 4
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faeac",
+        "date": "2026-02-24",
+        "count": 6,
+        "level": 4
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faead",
+        "date": "2026-02-25",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faeae",
+        "date": "2026-02-26",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faeaf",
+        "date": "2026-02-27",
+        "count": 8,
+        "level": 4
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faeb0",
+        "date": "2026-02-28",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faeb1",
+        "date": "2026-03-01",
+        "count": 4,
+        "level": 3
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faeb2",
+        "date": "2026-03-02",
+        "count": 3,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faeb3",
+        "date": "2026-03-03",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faeb4",
+        "date": "2026-03-04",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faeb5",
+        "date": "2026-03-05",
+        "count": 2,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faeb6",
+        "date": "2026-03-06",
+        "count": 7,
+        "level": 4
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faeb7",
+        "date": "2026-03-07",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faeb8",
+        "date": "2026-03-08",
+        "count": 7,
+        "level": 4
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faeb9",
+        "date": "2026-03-09",
+        "count": 3,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faeba",
+        "date": "2026-03-10",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faebb",
+        "date": "2026-03-11",
+        "count": 6,
+        "level": 4
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faebc",
+        "date": "2026-03-12",
+        "count": 7,
+        "level": 4
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faebd",
+        "date": "2026-03-13",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faebe",
+        "date": "2026-03-14",
+        "count": 2,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faebf",
+        "date": "2026-03-15",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faec0",
+        "date": "2026-03-16",
+        "count": 3,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faec1",
+        "date": "2026-03-17",
+        "count": 8,
+        "level": 4
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faec2",
+        "date": "2026-03-18",
+        "count": 1,
+        "level": 1
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faec3",
+        "date": "2026-03-19",
+        "count": 3,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faec4",
+        "date": "2026-03-20",
+        "count": 1,
+        "level": 1
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faec5",
+        "date": "2026-03-21",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faec6",
+        "date": "2026-03-22",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faec7",
+        "date": "2026-03-23",
+        "count": 6,
+        "level": 4
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faec8",
+        "date": "2026-03-24",
+        "count": 7,
+        "level": 4
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faec9",
+        "date": "2026-03-25",
+        "count": 7,
+        "level": 4
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faeca",
+        "date": "2026-03-26",
+        "count": 5,
+        "level": 3
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faecb",
+        "date": "2026-03-27",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faecc",
+        "date": "2026-03-28",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faecd",
+        "date": "2026-03-29",
+        "count": 0,
+        "level": 0
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faece",
+        "date": "2026-03-30",
+        "count": 5,
+        "level": 3
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faecf",
+        "date": "2026-03-31",
+        "count": 3,
+        "level": 2
+      },
+      {
+        "_id": "69ccb94d0a97400c3f5faed0",
+        "date": "2026-04-01",
+        "count": 0,
+        "level": 0
+      }
+    ],
+    "theme_settings": []
+  }
+}

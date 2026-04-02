@@ -1,10 +1,13 @@
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 from typing import List, Optional
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from bson import ObjectId
 import os
+import json
+import httpx
 from motor.motor_asyncio import AsyncIOMotorClient
 import secrets
 
@@ -630,6 +633,228 @@ async def update_site_config(data: dict):
     else:
         await db.site_config.insert_one(data)
     return {"success": True, "config": data}
+
+# ============ Real GitHub Integration ============
+
+GITHUB_USERNAME = os.environ.get("GITHUB_USERNAME", "yazeedfaumy")
+
+@app.post("/api/github-sync-real")
+async def sync_real_github_contributions(username: str = None):
+    """Fetch real GitHub contributions using the GitHub GraphQL API"""
+    github_user = username or GITHUB_USERNAME
+    github_token = os.environ.get("GITHUB_TOKEN")
+    
+    if github_token:
+        # Use GraphQL API for real data
+        query = """
+        query($userName: String!) {
+          user(login: $userName) {
+            contributionsCollection {
+              contributionCalendar {
+                totalContributions
+                weeks {
+                  contributionDays {
+                    contributionCount
+                    date
+                  }
+                }
+              }
+            }
+          }
+        }
+        """
+        
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    "https://api.github.com/graphql",
+                    json={"query": query, "variables": {"userName": github_user}},
+                    headers={
+                        "Authorization": f"Bearer {github_token}",
+                        "Content-Type": "application/json"
+                    },
+                    timeout=30.0
+                )
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    if "data" in data and data["data"]["user"]:
+                        calendar = data["data"]["user"]["contributionsCollection"]["contributionCalendar"]
+                        
+                        # Clear existing
+                        await db.github_contributions.delete_many({})
+                        
+                        contributions = []
+                        for week in calendar["weeks"]:
+                            for day in week["contributionDays"]:
+                                count = day["contributionCount"]
+                                level = 0 if count == 0 else min(count // 3 + 1, 4)
+                                contributions.append({
+                                    "date": day["date"],
+                                    "count": count,
+                                    "level": level
+                                })
+                        
+                        if contributions:
+                            await db.github_contributions.insert_many(contributions)
+                        
+                        return {
+                            "success": True, 
+                            "count": len(contributions),
+                            "total": calendar["totalContributions"],
+                            "source": "github_api"
+                        }
+        except Exception as e:
+            print(f"GitHub API error: {e}")
+    
+    # Fallback to mock data
+    return await sync_github_contributions()
+
+@app.get("/api/github-repos")
+async def get_github_repos(username: str = None):
+    """Fetch public repositories from GitHub"""
+    github_user = username or GITHUB_USERNAME
+    
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                f"https://api.github.com/users/{github_user}/repos",
+                params={"sort": "updated", "per_page": 10},
+                headers={"Accept": "application/vnd.github.v3+json"},
+                timeout=30.0
+            )
+            
+            if response.status_code == 200:
+                repos = response.json()
+                return [{
+                    "name": repo["name"],
+                    "description": repo["description"],
+                    "url": repo["html_url"],
+                    "stars": repo["stargazers_count"],
+                    "forks": repo["forks_count"],
+                    "language": repo["language"],
+                    "updated": repo["updated_at"]
+                } for repo in repos if not repo["fork"]]
+    except Exception as e:
+        print(f"GitHub repos error: {e}")
+    
+    return []
+
+# ============ Theme Settings ============
+
+@app.get("/api/theme")
+async def get_theme():
+    theme = await db.theme_settings.find_one()
+    if theme:
+        return serialize_doc(theme)
+    return {"mode": "light", "id": "default"}
+
+@app.put("/api/theme")
+async def update_theme(data: dict):
+    existing = await db.theme_settings.find_one()
+    if existing:
+        await db.theme_settings.update_one({"_id": existing["_id"]}, {"$set": data})
+    else:
+        await db.theme_settings.insert_one(data)
+    return {"success": True, "theme": data}
+
+# ============ Resume/CV Download ============
+
+@app.get("/api/resume/generate")
+async def generate_resume():
+    """Generate resume data for PDF creation"""
+    profile = await db.profile.find_one()
+    experience = await db.experience.find().sort("order", 1).to_list(10)
+    skills = await db.skills.find().sort([("category", 1), ("order", 1)]).to_list(50)
+    projects = await db.projects.find({"featured": True}).sort("order", 1).to_list(10)
+    socials = await db.socials.find().sort("order", 1).to_list(10)
+    
+    # Group skills by category
+    skills_by_category = {}
+    for skill in skills:
+        cat = skill.get("category", "Other")
+        if cat not in skills_by_category:
+            skills_by_category[cat] = []
+        skills_by_category[cat].append(skill.get("name", ""))
+    
+    resume_data = {
+        "profile": serialize_doc(profile) if profile else {},
+        "experience": serialize_docs(experience),
+        "skills": skills_by_category,
+        "projects": serialize_docs(projects),
+        "socials": serialize_docs(socials),
+        "generatedAt": datetime.now(timezone.utc).isoformat()
+    }
+    
+    return resume_data
+
+# ============ Data Export/Import ============
+
+@app.get("/api/export")
+async def export_all_data():
+    """Export all portfolio data for backup/migration"""
+    data = {
+        "profile": serialize_doc(await db.profile.find_one()),
+        "projects": serialize_docs(await db.projects.find().to_list(100)),
+        "blog_posts": serialize_docs(await db.blog_posts.find().to_list(100)),
+        "experience": serialize_docs(await db.experience.find().to_list(100)),
+        "skills": serialize_docs(await db.skills.find().to_list(100)),
+        "socials": serialize_docs(await db.socials.find().to_list(100)),
+        "footer_links": serialize_docs(await db.footer_links.find().to_list(100)),
+        "linkedin_posts": serialize_docs(await db.linkedin_posts.find().to_list(100)),
+        "about_blocks": serialize_docs(await db.about_blocks.find().to_list(100)),
+        "project_sections": serialize_docs(await db.project_sections.find().to_list(100)),
+        "site_config": serialize_doc(await db.site_config.find_one()),
+        "theme_settings": serialize_doc(await db.theme_settings.find_one()),
+        "exported_at": datetime.now(timezone.utc).isoformat(),
+        "version": "1.0"
+    }
+    return data
+
+@app.post("/api/import")
+async def import_all_data(data: dict):
+    """Import portfolio data from backup"""
+    try:
+        # Clear existing data
+        collections = ["profile", "projects", "blog_posts", "experience", "skills", 
+                      "socials", "footer_links", "linkedin_posts", "about_blocks", 
+                      "project_sections", "site_config", "theme_settings"]
+        
+        for collection in collections:
+            await db[collection].delete_many({})
+        
+        # Import data
+        if data.get("profile"):
+            profile = data["profile"]
+            if "id" in profile:
+                del profile["id"]
+            await db.profile.insert_one(profile)
+        
+        for collection in ["projects", "blog_posts", "experience", "skills", 
+                          "socials", "footer_links", "linkedin_posts", "about_blocks", 
+                          "project_sections"]:
+            items = data.get(collection, [])
+            if items:
+                for item in items:
+                    if "id" in item:
+                        del item["id"]
+                await db[collection].insert_many(items)
+        
+        if data.get("site_config"):
+            config = data["site_config"]
+            if "id" in config:
+                del config["id"]
+            await db.site_config.insert_one(config)
+        
+        if data.get("theme_settings"):
+            theme = data["theme_settings"]
+            if "id" in theme:
+                del theme["id"]
+            await db.theme_settings.insert_one(theme)
+        
+        return {"success": True, "message": "Data imported successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Import failed: {str(e)}")
 
 # ============ Seed Data ============
 

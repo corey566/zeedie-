@@ -50,7 +50,7 @@ export default function Home() {
       }
     });
 
-    const colors = ['bg-gray-200', 'bg-emerald-200', 'bg-emerald-300', 'bg-emerald-400', 'bg-emerald-500'];
+    const colors = ['bg-gray-200 dark:bg-gray-700', 'bg-emerald-200 dark:bg-emerald-800', 'bg-emerald-300 dark:bg-emerald-700', 'bg-emerald-400 dark:bg-emerald-600', 'bg-emerald-500 dark:bg-emerald-500'];
 
     return (
       <div className="flex gap-1 overflow-x-auto pb-2">
@@ -70,13 +70,13 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8f8f8] text-foreground font-sans selection:bg-black selection:text-white" ref={containerRef}>
+    <div className="min-h-screen bg-[#f8f8f8] dark:bg-[#0a0a0a] text-foreground font-sans selection:bg-black selection:text-white dark:selection:bg-white dark:selection:text-black" ref={containerRef}>
       
       {/* Main Content Wrapper */}
       <div className="relative z-10 flex flex-col min-h-screen px-4 pt-28 pb-4 md:px-6 md:pb-6 gap-6 w-full max-w-full overflow-x-hidden">
         
         {/* Hero Card Frame */}
-        <div className="relative w-full h-[85vh] md:h-[90vh] rounded-[2.5rem] md:rounded-[3.5rem] overflow-hidden border border-black/5 shadow-2xl bg-white isolate">
+        <div className="relative w-full h-[85vh] md:h-[90vh] rounded-[2.5rem] md:rounded-[3.5rem] overflow-hidden border border-black/5 dark:border-white/5 shadow-2xl bg-white dark:bg-[#111] isolate">
           
           {/* 3D Background */}
           <ThreeScene variant="hero" />

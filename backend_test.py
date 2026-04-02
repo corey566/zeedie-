@@ -6,7 +6,7 @@ import json
 from datetime import datetime
 
 class PortfolioAPITester:
-    def __init__(self, base_url="https://8b6b0442-a558-4213-aa8c-5c5a5a82ea8c.preview.emergentagent.com"):
+    def __init__(self, base_url="https://portfolio-revamp-62.preview.emergentagent.com"):
         self.base_url = base_url
         self.tests_run = 0
         self.tests_passed = 0
@@ -177,6 +177,72 @@ class PortfolioAPITester:
                 print("✅ Database seeded successfully")
         return success
 
+    def test_theme_endpoint(self):
+        """Test theme get/update endpoints"""
+        # Test GET theme
+        success1, data = self.run_test("Get Theme", "GET", "api/theme", 200)
+        if success1:
+            mode = data.get('mode', 'light')
+            print(f"✅ Current theme mode: {mode}")
+        
+        # Test PUT theme
+        success2, _ = self.run_test("Update Theme", "PUT", "api/theme", 200, {"mode": "dark"})
+        if success2:
+            print("✅ Theme update successful")
+        
+        return success1 and success2
+
+    def test_resume_generate_endpoint(self):
+        """Test resume generation endpoint"""
+        success, data = self.run_test("Generate Resume", "GET", "api/resume/generate", 200)
+        if success:
+            required_fields = ['profile', 'experience', 'skills', 'projects', 'socials']
+            missing_fields = [field for field in required_fields if field not in data]
+            if not missing_fields:
+                print("✅ Resume data contains all required fields")
+            else:
+                print(f"⚠️  Missing resume fields: {missing_fields}")
+            
+            if data.get('generatedAt'):
+                print("✅ Resume has generation timestamp")
+        return success
+
+    def test_export_endpoint(self):
+        """Test data export endpoint"""
+        success, data = self.run_test("Export All Data", "GET", "api/export", 200)
+        if success:
+            expected_collections = ['profile', 'projects', 'blog_posts', 'experience', 'skills', 'socials']
+            missing_collections = [col for col in expected_collections if col not in data]
+            if not missing_collections:
+                print("✅ Export contains all expected collections")
+            else:
+                print(f"⚠️  Missing export collections: {missing_collections}")
+            
+            if data.get('exported_at'):
+                print("✅ Export has timestamp")
+        return success
+
+    def test_github_repos_endpoint(self):
+        """Test GitHub repos endpoint (may return empty array)"""
+        success, data = self.run_test("GitHub Repos", "GET", "api/github-repos", 200)
+        if success:
+            if isinstance(data, list):
+                print(f"✅ GitHub repos endpoint returned {len(data)} repositories")
+                if len(data) > 0:
+                    # Check first repo structure
+                    repo = data[0]
+                    required_fields = ['name', 'description', 'url', 'stars', 'forks']
+                    if all(field in repo for field in required_fields):
+                        print("✅ Repository data structure is correct")
+                    else:
+                        print("⚠️  Repository data missing some fields")
+                else:
+                    print("✅ No repositories returned (acceptable)")
+            else:
+                print("⚠️  GitHub repos should return an array")
+                return False
+        return success
+
 def main():
     print("🚀 Starting Portfolio API Tests")
     print("=" * 50)
@@ -198,6 +264,12 @@ def main():
     test_results.append(tester.test_github_contributions_endpoint())
     test_results.append(tester.test_site_config_endpoint())
     test_results.append(tester.test_seed_endpoint())
+    
+    # New feature tests
+    test_results.append(tester.test_theme_endpoint())
+    test_results.append(tester.test_resume_generate_endpoint())
+    test_results.append(tester.test_export_endpoint())
+    test_results.append(tester.test_github_repos_endpoint())
     
     # Print summary
     print("\n" + "=" * 50)

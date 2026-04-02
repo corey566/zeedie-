@@ -148,3 +148,64 @@ export async function fetchProject(id: string) {
   if (!res.ok) throw new Error('Failed to fetch project');
   return res.json();
 }
+
+// GitHub Integration
+export async function syncRealGithubContributions(username?: string) {
+  const res = await fetch(`${API_BASE}/github-sync-real`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: username ? JSON.stringify({ username }) : undefined,
+  });
+  if (!res.ok) throw new Error('Failed to sync GitHub contributions');
+  return res.json();
+}
+
+export async function fetchGithubRepos(username?: string) {
+  const url = username 
+    ? `${API_BASE}/github-repos?username=${username}` 
+    : `${API_BASE}/github-repos`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Failed to fetch GitHub repos');
+  return res.json();
+}
+
+// Theme
+export async function fetchTheme() {
+  const res = await fetch(`${API_BASE}/theme`);
+  if (!res.ok) throw new Error('Failed to fetch theme');
+  return res.json();
+}
+
+export async function updateTheme(mode: 'light' | 'dark') {
+  const res = await fetch(`${API_BASE}/theme`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ mode }),
+  });
+  if (!res.ok) throw new Error('Failed to update theme');
+  return res.json();
+}
+
+// Resume/CV
+export async function generateResume() {
+  const res = await fetch(`${API_BASE}/resume/generate`);
+  if (!res.ok) throw new Error('Failed to generate resume');
+  return res.json();
+}
+
+// Data Export/Import
+export async function exportAllData() {
+  const res = await fetch(`${API_BASE}/export`);
+  if (!res.ok) throw new Error('Failed to export data');
+  return res.json();
+}
+
+export async function importAllData(data: any) {
+  const res = await fetch(`${API_BASE}/import`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Failed to import data');
+  return res.json();
+}
