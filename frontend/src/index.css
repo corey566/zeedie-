@@ -116,6 +116,22 @@
   --border: 0 0% 20%;
   --input: 0 0% 20%;
   --ring: 0 0% 80%;
+  
+  /* GitHub contribution colors for dark mode */
+  --tw-contrib-0: #161b22;
+  --tw-contrib-1: #0e4429;
+  --tw-contrib-2: #006d32;
+  --tw-contrib-3: #26a641;
+  --tw-contrib-4: #39d353;
+}
+
+/* Light mode GitHub contribution colors */
+:root {
+  --tw-contrib-0: #ebedf0;
+  --tw-contrib-1: #9be9a8;
+  --tw-contrib-2: #40c463;
+  --tw-contrib-3: #30a14e;
+  --tw-contrib-4: #216e39;
 }
 
 @layer base {
