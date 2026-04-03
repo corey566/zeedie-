@@ -1,15 +1,17 @@
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import List, Optional
-from datetime import datetime, timezone, timedelta
-from bson import ObjectId
+from datetime import datetime, timezone
 import os
 import json
 import httpx
-from motor.motor_asyncio import AsyncIOMotorClient
+import asyncpg
 import secrets
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 app = FastAPI(title="Portfolio API")
 
@@ -22,23 +24,195 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# MongoDB connection
-MONGO_URL = os.environ.get("MONGO_URL", "mongodb://localhost:27017")
-DB_NAME = os.environ.get("DB_NAME", "portfolio")
-client = AsyncIOMotorClient(MONGO_URL)
-db = client[DB_NAME]
+# PostgreSQL connection
+DATABASE_URL = os.environ.get("DATABASE_URL", "")
+pool = None
 
-# Helper to convert ObjectId to string
-def serialize_doc(doc):
-    if doc is None:
+async def get_pool():
+    global pool
+    if pool is None:
+        # Add SSL mode for external PostgreSQL
+        pool = await asyncpg.create_pool(
+            DATABASE_URL, 
+            min_size=1, 
+            max_size=10,
+            ssl='require'
+        )
+    return pool
+
+@app.on_event("startup")
+async def startup():
+    await get_pool()
+    await create_tables()
+
+@app.on_event("shutdown")
+async def shutdown():
+    global pool
+    if pool:
+        await pool.close()
+
+# ============ Database Schema ============
+
+async def create_tables():
+    p = await get_pool()
+    async with p.acquire() as conn:
+        await conn.execute('''
+            CREATE TABLE IF NOT EXISTS profile (
+                id SERIAL PRIMARY KEY,
+                name VARCHAR(255),
+                role VARCHAR(255),
+                email VARCHAR(255),
+                location VARCHAR(255),
+                bio TEXT,
+                profile_image VARCHAR(500),
+                years_experience INTEGER DEFAULT 0,
+                projects_shipped INTEGER DEFAULT 0,
+                created_at TIMESTAMP DEFAULT NOW(),
+                updated_at TIMESTAMP DEFAULT NOW()
+            )
+        ''')
+        
+        await conn.execute('''
+            CREATE TABLE IF NOT EXISTS projects (
+                id SERIAL PRIMARY KEY,
+                title VARCHAR(255) NOT NULL,
+                description TEXT,
+                technologies TEXT[], 
+                color VARCHAR(100) DEFAULT 'bg-gray-50',
+                featured BOOLEAN DEFAULT FALSE,
+                project_url VARCHAR(500),
+                github_url VARCHAR(500),
+                sort_order INTEGER DEFAULT 0,
+                created_at TIMESTAMP DEFAULT NOW()
+            )
+        ''')
+        
+        await conn.execute('''
+            CREATE TABLE IF NOT EXISTS blog_posts (
+                id SERIAL PRIMARY KEY,
+                title VARCHAR(255) NOT NULL,
+                excerpt TEXT,
+                content TEXT,
+                tags TEXT[],
+                published BOOLEAN DEFAULT TRUE,
+                published_date TIMESTAMP DEFAULT NOW(),
+                updated_at TIMESTAMP DEFAULT NOW()
+            )
+        ''')
+        
+        await conn.execute('''
+            CREATE TABLE IF NOT EXISTS experience (
+                id SERIAL PRIMARY KEY,
+                role VARCHAR(255) NOT NULL,
+                company VARCHAR(255) NOT NULL,
+                location VARCHAR(255),
+                period VARCHAR(100),
+                highlights TEXT[],
+                sort_order INTEGER DEFAULT 0,
+                is_current BOOLEAN DEFAULT FALSE,
+                created_at TIMESTAMP DEFAULT NOW()
+            )
+        ''')
+        
+        await conn.execute('''
+            CREATE TABLE IF NOT EXISTS skills (
+                id SERIAL PRIMARY KEY,
+                name VARCHAR(100) NOT NULL,
+                category VARCHAR(100),
+                sort_order INTEGER DEFAULT 0
+            )
+        ''')
+        
+        await conn.execute('''
+            CREATE TABLE IF NOT EXISTS socials (
+                id SERIAL PRIMARY KEY,
+                platform VARCHAR(100) NOT NULL,
+                label VARCHAR(100),
+                value VARCHAR(255),
+                href VARCHAR(500),
+                sort_order INTEGER DEFAULT 0
+            )
+        ''')
+        
+        await conn.execute('''
+            CREATE TABLE IF NOT EXISTS footer_links (
+                id SERIAL PRIMARY KEY,
+                label VARCHAR(100) NOT NULL,
+                href VARCHAR(500),
+                sort_order INTEGER DEFAULT 0
+            )
+        ''')
+        
+        await conn.execute('''
+            CREATE TABLE IF NOT EXISTS linkedin_posts (
+                id SERIAL PRIMARY KEY,
+                content TEXT,
+                post_date VARCHAR(100),
+                likes INTEGER DEFAULT 0,
+                comments INTEGER DEFAULT 0,
+                created_at TIMESTAMP DEFAULT NOW()
+            )
+        ''')
+        
+        await conn.execute('''
+            CREATE TABLE IF NOT EXISTS github_contributions (
+                id SERIAL PRIMARY KEY,
+                contribution_date VARCHAR(20),
+                count INTEGER DEFAULT 0,
+                level INTEGER DEFAULT 0
+            )
+        ''')
+        
+        await conn.execute('''
+            CREATE TABLE IF NOT EXISTS about_blocks (
+                id SERIAL PRIMARY KEY,
+                title VARCHAR(255),
+                content TEXT,
+                style VARCHAR(50) DEFAULT 'light',
+                image_url VARCHAR(500),
+                image_position VARCHAR(50),
+                sort_order INTEGER DEFAULT 0,
+                created_at TIMESTAMP DEFAULT NOW()
+            )
+        ''')
+        
+        await conn.execute('''
+            CREATE TABLE IF NOT EXISTS project_sections (
+                id SERIAL PRIMARY KEY,
+                project_id INTEGER REFERENCES projects(id) ON DELETE CASCADE,
+                title VARCHAR(255),
+                content TEXT,
+                image_url VARCHAR(500),
+                image_alignment VARCHAR(50),
+                image_caption VARCHAR(255),
+                sort_order INTEGER DEFAULT 0,
+                created_at TIMESTAMP DEFAULT NOW()
+            )
+        ''')
+        
+        await conn.execute('''
+            CREATE TABLE IF NOT EXISTS site_config (
+                id SERIAL PRIMARY KEY,
+                config_data JSONB DEFAULT '{}'::jsonb,
+                updated_at TIMESTAMP DEFAULT NOW()
+            )
+        ''')
+        
+        await conn.execute('''
+            CREATE TABLE IF NOT EXISTS theme_settings (
+                id SERIAL PRIMARY KEY,
+                mode VARCHAR(20) DEFAULT 'light',
+                updated_at TIMESTAMP DEFAULT NOW()
+            )
+        ''')
+        
+        print("Database tables created successfully")
+
+# Helper to convert row to dict
+def row_to_dict(row, keys):
+    if row is None:
         return None
-    if "_id" in doc:
-        doc["id"] = str(doc["_id"])
-        del doc["_id"]
-    return doc
-
-def serialize_docs(docs):
-    return [serialize_doc(doc) for doc in docs]
+    return {k: row[i] for i, k in enumerate(keys)}
 
 # ============ Models ============
 
@@ -78,56 +252,7 @@ class Experience(BaseModel):
     order: int = 0
     current: bool = False
 
-class Skill(BaseModel):
-    name: str
-    category: str
-    order: int = 0
-
-class Social(BaseModel):
-    platform: str
-    label: str
-    value: str
-    href: str
-    order: int = 0
-
-class FooterLink(BaseModel):
-    label: str
-    href: str
-    order: int = 0
-
-class LinkedinPost(BaseModel):
-    content: str
-    date: str
-    likes: int = 0
-    comments: int = 0
-
-class GithubContribution(BaseModel):
-    date: str
-    count: int = 0
-    level: int = 0
-
-class AboutBlock(BaseModel):
-    title: str
-    content: str
-    style: str = "light"
-    imageUrl: Optional[str] = None
-    imagePosition: Optional[str] = None
-    order: int = 0
-
-class ProjectSection(BaseModel):
-    projectId: str
-    title: Optional[str] = None
-    content: str
-    imageUrl: Optional[str] = None
-    imageAlignment: Optional[str] = None
-    imageCaption: Optional[str] = None
-    order: int = 0
-
-class AdminLogin(BaseModel):
-    username: str
-    password: str
-
-# Site config storage
+# Site config default
 SITE_CONFIG = {
     "hero": {
         "title": "TECH",
@@ -152,8 +277,8 @@ ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
 active_tokens = set()
 
 @app.post("/api/admin/login")
-async def admin_login(data: AdminLogin):
-    if data.username == ADMIN_USERNAME and data.password == ADMIN_PASSWORD:
+async def admin_login(data: dict):
+    if data.get("username") == ADMIN_USERNAME and data.get("password") == ADMIN_PASSWORD:
         token = secrets.token_hex(32)
         active_tokens.add(token)
         return {"token": token, "success": True}
@@ -167,902 +292,605 @@ async def admin_verify():
 
 @app.get("/api/profile")
 async def get_profile():
-    profile = await db.profile.find_one()
-    if profile:
-        return serialize_doc(profile)
-    # Return default if not found
+    p = await get_pool()
+    async with p.acquire() as conn:
+        row = await conn.fetchrow('SELECT * FROM profile LIMIT 1')
+        if row:
+            return {
+                "id": row['id'],
+                "name": row['name'],
+                "role": row['role'],
+                "email": row['email'],
+                "location": row['location'],
+                "bio": row['bio'],
+                "profileImage": row['profile_image'],
+                "yearsExperience": row['years_experience'],
+                "projectsShipped": row['projects_shipped']
+            }
     return {
-        "id": "default",
+        "id": 0,
         "name": "Mohamed Yazeed Faumy",
         "role": "IT Manager / Technical Operations Lead",
         "email": "2002yazeedfaumy@gmail.com",
         "location": "Wattala, Sri Lanka",
-        "bio": "IT Manager / Technical Operations Lead with 5+ years of experience managing cloud infrastructure, VoIP systems, SaaS platforms, and high-availability environments.",
+        "bio": "IT Manager / Technical Operations Lead with 5+ years of experience.",
         "yearsExperience": 5,
         "projectsShipped": 50
     }
 
 @app.put("/api/profile")
 async def update_profile(data: Profile):
-    existing = await db.profile.find_one()
-    profile_dict = data.model_dump()
-    profile_dict["updatedAt"] = datetime.now(timezone.utc).isoformat()
-    
-    if existing:
-        await db.profile.update_one({"_id": existing["_id"]}, {"$set": profile_dict})
-        return serialize_doc({**existing, **profile_dict})
-    else:
-        result = await db.profile.insert_one(profile_dict)
-        profile_dict["id"] = str(result.inserted_id)
-        return profile_dict
+    p = await get_pool()
+    async with p.acquire() as conn:
+        existing = await conn.fetchrow('SELECT id FROM profile LIMIT 1')
+        if existing:
+            await conn.execute('''
+                UPDATE profile SET name=$1, role=$2, email=$3, location=$4, bio=$5, 
+                profile_image=$6, years_experience=$7, projects_shipped=$8, updated_at=NOW()
+                WHERE id=$9
+            ''', data.name, data.role, data.email, data.location, data.bio,
+                data.profileImage, data.yearsExperience, data.projectsShipped, existing['id'])
+            return {"success": True, "id": existing['id']}
+        else:
+            result = await conn.fetchrow('''
+                INSERT INTO profile (name, role, email, location, bio, profile_image, years_experience, projects_shipped)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id
+            ''', data.name, data.role, data.email, data.location, data.bio,
+                data.profileImage, data.yearsExperience, data.projectsShipped)
+            return {"success": True, "id": result['id']}
 
 # ============ Projects ============
 
 @app.get("/api/projects")
 async def get_projects():
-    projects = await db.projects.find().sort([("order", 1), ("createdAt", -1)]).to_list(100)
-    return serialize_docs(projects)
+    p = await get_pool()
+    async with p.acquire() as conn:
+        rows = await conn.fetch('SELECT * FROM projects ORDER BY sort_order ASC, created_at DESC')
+        return [{
+            "id": r['id'],
+            "title": r['title'],
+            "description": r['description'],
+            "technologies": r['technologies'] or [],
+            "color": r['color'],
+            "featured": r['featured'],
+            "projectUrl": r['project_url'],
+            "githubUrl": r['github_url'],
+            "order": r['sort_order']
+        } for r in rows]
 
 @app.get("/api/projects/featured")
 async def get_featured_projects():
-    projects = await db.projects.find({"featured": True}).sort("order", 1).to_list(100)
-    return serialize_docs(projects)
+    p = await get_pool()
+    async with p.acquire() as conn:
+        rows = await conn.fetch('SELECT * FROM projects WHERE featured=TRUE ORDER BY sort_order ASC')
+        return [{
+            "id": r['id'],
+            "title": r['title'],
+            "description": r['description'],
+            "technologies": r['technologies'] or [],
+            "color": r['color'],
+            "featured": r['featured'],
+            "order": r['sort_order']
+        } for r in rows]
 
 @app.get("/api/projects/{project_id}")
-async def get_project(project_id: str):
-    try:
-        project = await db.projects.find_one({"_id": ObjectId(project_id)})
-    except:
-        project = await db.projects.find_one({"id": project_id})
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
-    return serialize_doc(project)
+async def get_project(project_id: int):
+    p = await get_pool()
+    async with p.acquire() as conn:
+        r = await conn.fetchrow('SELECT * FROM projects WHERE id=$1', project_id)
+        if not r:
+            raise HTTPException(status_code=404, detail="Project not found")
+        return {
+            "id": r['id'],
+            "title": r['title'],
+            "description": r['description'],
+            "technologies": r['technologies'] or [],
+            "color": r['color'],
+            "featured": r['featured'],
+            "projectUrl": r['project_url'],
+            "githubUrl": r['github_url'],
+            "order": r['sort_order']
+        }
 
 @app.post("/api/projects")
 async def create_project(data: Project):
-    project_dict = data.model_dump()
-    project_dict["createdAt"] = datetime.now(timezone.utc).isoformat()
-    result = await db.projects.insert_one(project_dict)
-    project_dict["id"] = str(result.inserted_id)
-    return project_dict
+    p = await get_pool()
+    async with p.acquire() as conn:
+        result = await conn.fetchrow('''
+            INSERT INTO projects (title, description, technologies, color, featured, project_url, github_url, sort_order)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id
+        ''', data.title, data.description, data.technologies, data.color, data.featured, 
+            data.projectUrl, data.githubUrl, data.order)
+        return {"success": True, "id": result['id']}
 
 @app.put("/api/projects/{project_id}")
-async def update_project(project_id: str, data: dict):
-    try:
-        result = await db.projects.update_one(
-            {"_id": ObjectId(project_id)},
-            {"$set": data}
-        )
-    except:
-        result = await db.projects.update_one(
-            {"id": project_id},
-            {"$set": data}
-        )
-    if result.matched_count == 0:
-        raise HTTPException(status_code=404, detail="Project not found")
-    return {"success": True}
+async def update_project(project_id: int, data: dict):
+    p = await get_pool()
+    async with p.acquire() as conn:
+        await conn.execute('''
+            UPDATE projects SET title=COALESCE($1, title), description=COALESCE($2, description),
+            technologies=COALESCE($3, technologies), color=COALESCE($4, color), featured=COALESCE($5, featured),
+            sort_order=COALESCE($6, sort_order) WHERE id=$7
+        ''', data.get('title'), data.get('description'), data.get('technologies'),
+            data.get('color'), data.get('featured'), data.get('order'), project_id)
+        return {"success": True}
 
 @app.delete("/api/projects/{project_id}")
-async def delete_project(project_id: str):
-    try:
-        result = await db.projects.delete_one({"_id": ObjectId(project_id)})
-    except:
-        result = await db.projects.delete_one({"id": project_id})
-    if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="Project not found")
-    return {"success": True}
+async def delete_project(project_id: int):
+    p = await get_pool()
+    async with p.acquire() as conn:
+        await conn.execute('DELETE FROM projects WHERE id=$1', project_id)
+        return {"success": True}
 
 # ============ Blog Posts ============
 
 @app.get("/api/blog")
 async def get_published_blog_posts():
-    posts = await db.blog_posts.find({"published": True}).sort("publishedDate", -1).to_list(100)
-    return serialize_docs(posts)
+    p = await get_pool()
+    async with p.acquire() as conn:
+        rows = await conn.fetch('SELECT * FROM blog_posts WHERE published=TRUE ORDER BY published_date DESC')
+        return [{
+            "id": r['id'],
+            "title": r['title'],
+            "excerpt": r['excerpt'],
+            "content": r['content'],
+            "tags": r['tags'] or [],
+            "published": r['published'],
+            "publishedDate": r['published_date'].isoformat() if r['published_date'] else None
+        } for r in rows]
 
 @app.get("/api/blog/all")
 async def get_all_blog_posts():
-    posts = await db.blog_posts.find().sort("publishedDate", -1).to_list(100)
-    return serialize_docs(posts)
+    p = await get_pool()
+    async with p.acquire() as conn:
+        rows = await conn.fetch('SELECT * FROM blog_posts ORDER BY published_date DESC')
+        return [{
+            "id": r['id'],
+            "title": r['title'],
+            "excerpt": r['excerpt'],
+            "content": r['content'],
+            "tags": r['tags'] or [],
+            "published": r['published'],
+            "publishedDate": r['published_date'].isoformat() if r['published_date'] else None
+        } for r in rows]
 
 @app.get("/api/blog/{post_id}")
-async def get_blog_post(post_id: str):
-    try:
-        post = await db.blog_posts.find_one({"_id": ObjectId(post_id)})
-    except:
-        post = await db.blog_posts.find_one({"id": post_id})
-    if not post:
-        raise HTTPException(status_code=404, detail="Blog post not found")
-    return serialize_doc(post)
+async def get_blog_post(post_id: int):
+    p = await get_pool()
+    async with p.acquire() as conn:
+        r = await conn.fetchrow('SELECT * FROM blog_posts WHERE id=$1', post_id)
+        if not r:
+            raise HTTPException(status_code=404, detail="Blog post not found")
+        return {
+            "id": r['id'],
+            "title": r['title'],
+            "excerpt": r['excerpt'],
+            "content": r['content'],
+            "tags": r['tags'] or [],
+            "published": r['published'],
+            "publishedDate": r['published_date'].isoformat() if r['published_date'] else None
+        }
 
 @app.post("/api/blog")
 async def create_blog_post(data: BlogPost):
-    post_dict = data.model_dump()
-    post_dict["publishedDate"] = datetime.now(timezone.utc).isoformat()
-    post_dict["updatedAt"] = datetime.now(timezone.utc).isoformat()
-    result = await db.blog_posts.insert_one(post_dict)
-    post_dict["id"] = str(result.inserted_id)
-    return post_dict
+    p = await get_pool()
+    async with p.acquire() as conn:
+        result = await conn.fetchrow('''
+            INSERT INTO blog_posts (title, excerpt, content, tags, published)
+            VALUES ($1, $2, $3, $4, $5) RETURNING id
+        ''', data.title, data.excerpt, data.content, data.tags, data.published)
+        return {"success": True, "id": result['id']}
 
 @app.put("/api/blog/{post_id}")
-async def update_blog_post(post_id: str, data: dict):
-    data["updatedAt"] = datetime.now(timezone.utc).isoformat()
-    try:
-        result = await db.blog_posts.update_one(
-            {"_id": ObjectId(post_id)},
-            {"$set": data}
-        )
-    except:
-        result = await db.blog_posts.update_one(
-            {"id": post_id},
-            {"$set": data}
-        )
-    if result.matched_count == 0:
-        raise HTTPException(status_code=404, detail="Blog post not found")
-    return {"success": True}
+async def update_blog_post(post_id: int, data: dict):
+    p = await get_pool()
+    async with p.acquire() as conn:
+        await conn.execute('''
+            UPDATE blog_posts SET title=COALESCE($1, title), excerpt=COALESCE($2, excerpt),
+            content=COALESCE($3, content), tags=COALESCE($4, tags), published=COALESCE($5, published),
+            updated_at=NOW() WHERE id=$6
+        ''', data.get('title'), data.get('excerpt'), data.get('content'),
+            data.get('tags'), data.get('published'), post_id)
+        return {"success": True}
 
 @app.delete("/api/blog/{post_id}")
-async def delete_blog_post(post_id: str):
-    try:
-        result = await db.blog_posts.delete_one({"_id": ObjectId(post_id)})
-    except:
-        result = await db.blog_posts.delete_one({"id": post_id})
-    if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="Blog post not found")
-    return {"success": True}
+async def delete_blog_post(post_id: int):
+    p = await get_pool()
+    async with p.acquire() as conn:
+        await conn.execute('DELETE FROM blog_posts WHERE id=$1', post_id)
+        return {"success": True}
 
 # ============ Experience ============
 
 @app.get("/api/experience")
 async def get_experience():
-    experience = await db.experience.find().sort([("order", 1), ("createdAt", -1)]).to_list(100)
-    return serialize_docs(experience)
+    p = await get_pool()
+    async with p.acquire() as conn:
+        rows = await conn.fetch('SELECT * FROM experience ORDER BY sort_order ASC, created_at DESC')
+        return [{
+            "id": r['id'],
+            "role": r['role'],
+            "company": r['company'],
+            "location": r['location'],
+            "period": r['period'],
+            "highlights": r['highlights'] or [],
+            "order": r['sort_order'],
+            "current": r['is_current']
+        } for r in rows]
 
 @app.post("/api/experience")
 async def create_experience(data: Experience):
-    exp_dict = data.model_dump()
-    exp_dict["createdAt"] = datetime.now(timezone.utc).isoformat()
-    result = await db.experience.insert_one(exp_dict)
-    exp_dict["id"] = str(result.inserted_id)
-    return exp_dict
+    p = await get_pool()
+    async with p.acquire() as conn:
+        result = await conn.fetchrow('''
+            INSERT INTO experience (role, company, location, period, highlights, sort_order, is_current)
+            VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id
+        ''', data.role, data.company, data.location, data.period, data.highlights, data.order, data.current)
+        return {"success": True, "id": result['id']}
 
 @app.put("/api/experience/{exp_id}")
-async def update_experience(exp_id: str, data: dict):
-    try:
-        result = await db.experience.update_one(
-            {"_id": ObjectId(exp_id)},
-            {"$set": data}
-        )
-    except:
-        result = await db.experience.update_one(
-            {"id": exp_id},
-            {"$set": data}
-        )
-    if result.matched_count == 0:
-        raise HTTPException(status_code=404, detail="Experience not found")
-    return {"success": True}
+async def update_experience(exp_id: int, data: dict):
+    p = await get_pool()
+    async with p.acquire() as conn:
+        await conn.execute('''
+            UPDATE experience SET role=COALESCE($1, role), company=COALESCE($2, company),
+            location=COALESCE($3, location), period=COALESCE($4, period), highlights=COALESCE($5, highlights),
+            sort_order=COALESCE($6, sort_order), is_current=COALESCE($7, is_current) WHERE id=$8
+        ''', data.get('role'), data.get('company'), data.get('location'), data.get('period'),
+            data.get('highlights'), data.get('order'), data.get('current'), exp_id)
+        return {"success": True}
 
 @app.delete("/api/experience/{exp_id}")
-async def delete_experience(exp_id: str):
-    try:
-        result = await db.experience.delete_one({"_id": ObjectId(exp_id)})
-    except:
-        result = await db.experience.delete_one({"id": exp_id})
-    if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="Experience not found")
-    return {"success": True}
+async def delete_experience(exp_id: int):
+    p = await get_pool()
+    async with p.acquire() as conn:
+        await conn.execute('DELETE FROM experience WHERE id=$1', exp_id)
+        return {"success": True}
 
 # ============ Skills ============
 
 @app.get("/api/skills")
 async def get_skills():
-    skills = await db.skills.find().sort([("category", 1), ("order", 1)]).to_list(100)
-    return serialize_docs(skills)
+    p = await get_pool()
+    async with p.acquire() as conn:
+        rows = await conn.fetch('SELECT * FROM skills ORDER BY category ASC, sort_order ASC')
+        return [{"id": r['id'], "name": r['name'], "category": r['category'], "order": r['sort_order']} for r in rows]
 
 @app.post("/api/skills")
-async def create_skill(data: Skill):
-    skill_dict = data.model_dump()
-    result = await db.skills.insert_one(skill_dict)
-    skill_dict["id"] = str(result.inserted_id)
-    return skill_dict
-
-@app.put("/api/skills/{skill_id}")
-async def update_skill(skill_id: str, data: dict):
-    try:
-        result = await db.skills.update_one(
-            {"_id": ObjectId(skill_id)},
-            {"$set": data}
-        )
-    except:
-        result = await db.skills.update_one(
-            {"id": skill_id},
-            {"$set": data}
-        )
-    if result.matched_count == 0:
-        raise HTTPException(status_code=404, detail="Skill not found")
-    return {"success": True}
+async def create_skill(data: dict):
+    p = await get_pool()
+    async with p.acquire() as conn:
+        result = await conn.fetchrow('''
+            INSERT INTO skills (name, category, sort_order) VALUES ($1, $2, $3) RETURNING id
+        ''', data.get('name'), data.get('category'), data.get('order', 0))
+        return {"success": True, "id": result['id']}
 
 @app.delete("/api/skills/{skill_id}")
-async def delete_skill(skill_id: str):
-    try:
-        result = await db.skills.delete_one({"_id": ObjectId(skill_id)})
-    except:
-        result = await db.skills.delete_one({"id": skill_id})
-    if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="Skill not found")
-    return {"success": True}
+async def delete_skill(skill_id: int):
+    p = await get_pool()
+    async with p.acquire() as conn:
+        await conn.execute('DELETE FROM skills WHERE id=$1', skill_id)
+        return {"success": True}
 
 # ============ Socials ============
 
 @app.get("/api/socials")
 async def get_socials():
-    socials = await db.socials.find().sort("order", 1).to_list(100)
-    return serialize_docs(socials)
+    p = await get_pool()
+    async with p.acquire() as conn:
+        rows = await conn.fetch('SELECT * FROM socials ORDER BY sort_order ASC')
+        return [{"id": r['id'], "platform": r['platform'], "label": r['label'], 
+                 "value": r['value'], "href": r['href'], "order": r['sort_order']} for r in rows]
 
 @app.post("/api/socials")
-async def create_social(data: Social):
-    social_dict = data.model_dump()
-    result = await db.socials.insert_one(social_dict)
-    social_dict["id"] = str(result.inserted_id)
-    return social_dict
-
-@app.put("/api/socials/{social_id}")
-async def update_social(social_id: str, data: dict):
-    try:
-        result = await db.socials.update_one(
-            {"_id": ObjectId(social_id)},
-            {"$set": data}
-        )
-    except:
-        result = await db.socials.update_one(
-            {"id": social_id},
-            {"$set": data}
-        )
-    if result.matched_count == 0:
-        raise HTTPException(status_code=404, detail="Social not found")
-    return {"success": True}
+async def create_social(data: dict):
+    p = await get_pool()
+    async with p.acquire() as conn:
+        result = await conn.fetchrow('''
+            INSERT INTO socials (platform, label, value, href, sort_order) VALUES ($1, $2, $3, $4, $5) RETURNING id
+        ''', data.get('platform'), data.get('label'), data.get('value'), data.get('href'), data.get('order', 0))
+        return {"success": True, "id": result['id']}
 
 @app.delete("/api/socials/{social_id}")
-async def delete_social(social_id: str):
-    try:
-        result = await db.socials.delete_one({"_id": ObjectId(social_id)})
-    except:
-        result = await db.socials.delete_one({"id": social_id})
-    if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="Social not found")
-    return {"success": True}
+async def delete_social(social_id: int):
+    p = await get_pool()
+    async with p.acquire() as conn:
+        await conn.execute('DELETE FROM socials WHERE id=$1', social_id)
+        return {"success": True}
 
 # ============ Footer Links ============
 
 @app.get("/api/footer-links")
 async def get_footer_links():
-    links = await db.footer_links.find().sort("order", 1).to_list(100)
-    return serialize_docs(links)
-
-@app.post("/api/footer-links")
-async def create_footer_link(data: FooterLink):
-    link_dict = data.model_dump()
-    result = await db.footer_links.insert_one(link_dict)
-    link_dict["id"] = str(result.inserted_id)
-    return link_dict
-
-@app.delete("/api/footer-links/{link_id}")
-async def delete_footer_link(link_id: str):
-    try:
-        result = await db.footer_links.delete_one({"_id": ObjectId(link_id)})
-    except:
-        result = await db.footer_links.delete_one({"id": link_id})
-    if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="Footer link not found")
-    return {"success": True}
+    p = await get_pool()
+    async with p.acquire() as conn:
+        rows = await conn.fetch('SELECT * FROM footer_links ORDER BY sort_order ASC')
+        return [{"id": r['id'], "label": r['label'], "href": r['href'], "order": r['sort_order']} for r in rows]
 
 # ============ LinkedIn Posts ============
 
 @app.get("/api/linkedin-posts")
 async def get_linkedin_posts():
-    posts = await db.linkedin_posts.find().sort("createdAt", -1).to_list(10)
-    return serialize_docs(posts)
+    p = await get_pool()
+    async with p.acquire() as conn:
+        rows = await conn.fetch('SELECT * FROM linkedin_posts ORDER BY created_at DESC LIMIT 10')
+        return [{"id": r['id'], "content": r['content'], "date": r['post_date'], 
+                 "likes": r['likes'], "comments": r['comments']} for r in rows]
 
 @app.post("/api/linkedin-posts")
-async def create_linkedin_post(data: LinkedinPost):
-    post_dict = data.model_dump()
-    post_dict["createdAt"] = datetime.now(timezone.utc).isoformat()
-    result = await db.linkedin_posts.insert_one(post_dict)
-    post_dict["id"] = str(result.inserted_id)
-    return post_dict
-
-@app.put("/api/linkedin-posts/{post_id}")
-async def update_linkedin_post(post_id: str, data: dict):
-    try:
-        result = await db.linkedin_posts.update_one(
-            {"_id": ObjectId(post_id)},
-            {"$set": data}
-        )
-    except:
-        result = await db.linkedin_posts.update_one(
-            {"id": post_id},
-            {"$set": data}
-        )
-    if result.matched_count == 0:
-        raise HTTPException(status_code=404, detail="LinkedIn post not found")
-    return {"success": True}
-
-@app.delete("/api/linkedin-posts/{post_id}")
-async def delete_linkedin_post(post_id: str):
-    try:
-        result = await db.linkedin_posts.delete_one({"_id": ObjectId(post_id)})
-    except:
-        result = await db.linkedin_posts.delete_one({"id": post_id})
-    if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="LinkedIn post not found")
-    return {"success": True}
+async def create_linkedin_post(data: dict):
+    p = await get_pool()
+    async with p.acquire() as conn:
+        result = await conn.fetchrow('''
+            INSERT INTO linkedin_posts (content, post_date, likes, comments) VALUES ($1, $2, $3, $4) RETURNING id
+        ''', data.get('content'), data.get('date'), data.get('likes', 0), data.get('comments', 0))
+        return {"success": True, "id": result['id']}
 
 # ============ GitHub Contributions ============
 
 @app.get("/api/github-contributions")
 async def get_github_contributions():
-    contributions = await db.github_contributions.find().sort("date", 1).to_list(365)
-    return serialize_docs(contributions)
+    p = await get_pool()
+    async with p.acquire() as conn:
+        rows = await conn.fetch('SELECT * FROM github_contributions ORDER BY contribution_date ASC')
+        return [{"id": r['id'], "date": r['contribution_date'], "count": r['count'], "level": r['level']} for r in rows]
 
 @app.post("/api/github-sync")
 async def sync_github_contributions():
-    # Generate mock contributions for the last 180 days
     import random
-    contributions = []
-    today = datetime.now(timezone.utc)
-    
-    # Clear existing
-    await db.github_contributions.delete_many({})
-    
-    for i in range(180):
-        date = today.replace(hour=0, minute=0, second=0, microsecond=0)
-        date = date.replace(day=today.day - (179 - i)) if today.day > (179 - i) else date
+    p = await get_pool()
+    async with p.acquire() as conn:
+        await conn.execute('DELETE FROM github_contributions')
         
-        from datetime import timedelta
-        date = today - timedelta(days=(179 - i))
+        today = datetime.now(timezone.utc)
+        for i in range(180):
+            from datetime import timedelta
+            date = today - timedelta(days=(179 - i))
+            count = random.randint(0, 8) if random.random() > 0.3 else 0
+            level = min(count // 2 + 1, 4) if count > 0 else 0
+            
+            await conn.execute('''
+                INSERT INTO github_contributions (contribution_date, count, level) VALUES ($1, $2, $3)
+            ''', date.strftime("%Y-%m-%d"), count, level)
         
-        count = random.randint(0, 8) if random.random() > 0.3 else 0
-        level = min(count // 2 + 1, 4) if count > 0 else 0
-        
-        contributions.append({
-            "date": date.strftime("%Y-%m-%d"),
-            "count": count,
-            "level": level
-        })
-    
-    if contributions:
-        await db.github_contributions.insert_many(contributions)
-    
-    return {"success": True, "count": len(contributions)}
-
-# ============ About Blocks ============
-
-@app.get("/api/about-blocks")
-async def get_about_blocks():
-    blocks = await db.about_blocks.find().sort("order", 1).to_list(100)
-    return serialize_docs(blocks)
-
-@app.post("/api/about-blocks")
-async def create_about_block(data: AboutBlock):
-    block_dict = data.model_dump()
-    block_dict["createdAt"] = datetime.now(timezone.utc).isoformat()
-    result = await db.about_blocks.insert_one(block_dict)
-    block_dict["id"] = str(result.inserted_id)
-    return block_dict
-
-@app.put("/api/about-blocks/{block_id}")
-async def update_about_block(block_id: str, data: dict):
-    try:
-        result = await db.about_blocks.update_one(
-            {"_id": ObjectId(block_id)},
-            {"$set": data}
-        )
-    except:
-        result = await db.about_blocks.update_one(
-            {"id": block_id},
-            {"$set": data}
-        )
-    if result.matched_count == 0:
-        raise HTTPException(status_code=404, detail="About block not found")
-    return {"success": True}
-
-@app.delete("/api/about-blocks/{block_id}")
-async def delete_about_block(block_id: str):
-    try:
-        result = await db.about_blocks.delete_one({"_id": ObjectId(block_id)})
-    except:
-        result = await db.about_blocks.delete_one({"id": block_id})
-    if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="About block not found")
-    return {"success": True}
-
-# ============ Project Sections ============
-
-@app.get("/api/projects/{project_id}/sections")
-async def get_project_sections(project_id: str):
-    sections = await db.project_sections.find({"projectId": project_id}).sort("order", 1).to_list(100)
-    return serialize_docs(sections)
-
-@app.post("/api/projects/{project_id}/sections")
-async def create_project_section(project_id: str, data: dict):
-    data["projectId"] = project_id
-    data["createdAt"] = datetime.now(timezone.utc).isoformat()
-    result = await db.project_sections.insert_one(data)
-    data["id"] = str(result.inserted_id)
-    return data
-
-@app.put("/api/project-sections/{section_id}")
-async def update_project_section(section_id: str, data: dict):
-    try:
-        result = await db.project_sections.update_one(
-            {"_id": ObjectId(section_id)},
-            {"$set": data}
-        )
-    except:
-        result = await db.project_sections.update_one(
-            {"id": section_id},
-            {"$set": data}
-        )
-    if result.matched_count == 0:
-        raise HTTPException(status_code=404, detail="Section not found")
-    return {"success": True}
-
-@app.delete("/api/project-sections/{section_id}")
-async def delete_project_section(section_id: str):
-    try:
-        result = await db.project_sections.delete_one({"_id": ObjectId(section_id)})
-    except:
-        result = await db.project_sections.delete_one({"id": section_id})
-    if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="Section not found")
-    return {"success": True}
+        return {"success": True, "count": 180}
 
 # ============ Site Config ============
 
 @app.get("/api/site-config")
 async def get_site_config():
-    config = await db.site_config.find_one()
-    if config:
-        return serialize_doc(config)
-    return SITE_CONFIG
+    p = await get_pool()
+    async with p.acquire() as conn:
+        row = await conn.fetchrow('SELECT config_data FROM site_config LIMIT 1')
+        if row and row['config_data']:
+            return row['config_data']
+        return SITE_CONFIG
 
 @app.put("/api/site-config")
 async def update_site_config(data: dict):
-    existing = await db.site_config.find_one()
-    if existing:
-        await db.site_config.update_one({"_id": existing["_id"]}, {"$set": data})
-    else:
-        await db.site_config.insert_one(data)
-    return {"success": True, "config": data}
+    p = await get_pool()
+    async with p.acquire() as conn:
+        existing = await conn.fetchrow('SELECT id FROM site_config LIMIT 1')
+        if existing:
+            await conn.execute('UPDATE site_config SET config_data=$1, updated_at=NOW() WHERE id=$2', 
+                             json.dumps(data), existing['id'])
+        else:
+            await conn.execute('INSERT INTO site_config (config_data) VALUES ($1)', json.dumps(data))
+        return {"success": True}
 
-# ============ Real GitHub Integration ============
-
-GITHUB_USERNAME = os.environ.get("GITHUB_USERNAME", "yazeedfaumy")
-
-@app.post("/api/github-sync-real")
-async def sync_real_github_contributions(username: str = None):
-    """Fetch real GitHub contributions using the GitHub GraphQL API"""
-    github_user = username or GITHUB_USERNAME
-    github_token = os.environ.get("GITHUB_TOKEN")
-    
-    if github_token:
-        # Use GraphQL API for real data
-        query = """
-        query($userName: String!) {
-          user(login: $userName) {
-            contributionsCollection {
-              contributionCalendar {
-                totalContributions
-                weeks {
-                  contributionDays {
-                    contributionCount
-                    date
-                  }
-                }
-              }
-            }
-          }
-        }
-        """
-        
-        try:
-            async with httpx.AsyncClient() as client:
-                response = await client.post(
-                    "https://api.github.com/graphql",
-                    json={"query": query, "variables": {"userName": github_user}},
-                    headers={
-                        "Authorization": f"Bearer {github_token}",
-                        "Content-Type": "application/json"
-                    },
-                    timeout=30.0
-                )
-                
-                if response.status_code == 200:
-                    data = response.json()
-                    if "data" in data and data["data"]["user"]:
-                        calendar = data["data"]["user"]["contributionsCollection"]["contributionCalendar"]
-                        
-                        # Clear existing
-                        await db.github_contributions.delete_many({})
-                        
-                        contributions = []
-                        for week in calendar["weeks"]:
-                            for day in week["contributionDays"]:
-                                count = day["contributionCount"]
-                                level = 0 if count == 0 else min(count // 3 + 1, 4)
-                                contributions.append({
-                                    "date": day["date"],
-                                    "count": count,
-                                    "level": level
-                                })
-                        
-                        if contributions:
-                            await db.github_contributions.insert_many(contributions)
-                        
-                        return {
-                            "success": True, 
-                            "count": len(contributions),
-                            "total": calendar["totalContributions"],
-                            "source": "github_api"
-                        }
-        except Exception as e:
-            print(f"GitHub API error: {e}")
-    
-    # Fallback to mock data
-    return await sync_github_contributions()
-
-@app.get("/api/github-repos")
-async def get_github_repos(username: str = None):
-    """Fetch public repositories from GitHub"""
-    github_user = username or GITHUB_USERNAME
-    
-    try:
-        async with httpx.AsyncClient() as client:
-            response = await client.get(
-                f"https://api.github.com/users/{github_user}/repos",
-                params={"sort": "updated", "per_page": 10},
-                headers={"Accept": "application/vnd.github.v3+json"},
-                timeout=30.0
-            )
-            
-            if response.status_code == 200:
-                repos = response.json()
-                return [{
-                    "name": repo["name"],
-                    "description": repo["description"],
-                    "url": repo["html_url"],
-                    "stars": repo["stargazers_count"],
-                    "forks": repo["forks_count"],
-                    "language": repo["language"],
-                    "updated": repo["updated_at"]
-                } for repo in repos if not repo["fork"]]
-    except Exception as e:
-        print(f"GitHub repos error: {e}")
-    
-    return []
-
-# ============ Theme Settings ============
+# ============ Theme ============
 
 @app.get("/api/theme")
 async def get_theme():
-    theme = await db.theme_settings.find_one()
-    if theme:
-        return serialize_doc(theme)
-    return {"mode": "light", "id": "default"}
+    p = await get_pool()
+    async with p.acquire() as conn:
+        row = await conn.fetchrow('SELECT * FROM theme_settings LIMIT 1')
+        if row:
+            return {"id": row['id'], "mode": row['mode']}
+        return {"id": 0, "mode": "light"}
 
 @app.put("/api/theme")
 async def update_theme(data: dict):
-    existing = await db.theme_settings.find_one()
-    # Remove any ObjectId from data to avoid serialization issues
-    if "id" in data:
-        del data["id"]
-    if "_id" in data:
-        del data["_id"]
-    
-    if existing:
-        await db.theme_settings.update_one({"_id": existing["_id"]}, {"$set": data})
-    else:
-        await db.theme_settings.insert_one(data)
-    return {"success": True, "theme": data}
+    p = await get_pool()
+    async with p.acquire() as conn:
+        existing = await conn.fetchrow('SELECT id FROM theme_settings LIMIT 1')
+        mode = data.get('mode', 'light')
+        if existing:
+            await conn.execute('UPDATE theme_settings SET mode=$1, updated_at=NOW() WHERE id=$2', mode, existing['id'])
+        else:
+            await conn.execute('INSERT INTO theme_settings (mode) VALUES ($1)', mode)
+        return {"success": True, "theme": {"mode": mode}}
 
-# ============ Resume/CV Download ============
+# ============ Resume Generate ============
 
 @app.get("/api/resume/generate")
 async def generate_resume():
-    """Generate resume data for PDF creation"""
-    profile = await db.profile.find_one()
-    experience = await db.experience.find().sort("order", 1).to_list(10)
-    skills = await db.skills.find().sort([("category", 1), ("order", 1)]).to_list(50)
-    projects = await db.projects.find({"featured": True}).sort("order", 1).to_list(10)
-    socials = await db.socials.find().sort("order", 1).to_list(10)
-    
-    # Group skills by category
-    skills_by_category = {}
-    for skill in skills:
-        cat = skill.get("category", "Other")
-        if cat not in skills_by_category:
-            skills_by_category[cat] = []
-        skills_by_category[cat].append(skill.get("name", ""))
-    
-    resume_data = {
-        "profile": serialize_doc(profile) if profile else {},
-        "experience": serialize_docs(experience),
-        "skills": skills_by_category,
-        "projects": serialize_docs(projects),
-        "socials": serialize_docs(socials),
-        "generatedAt": datetime.now(timezone.utc).isoformat()
-    }
-    
-    return resume_data
+    p = await get_pool()
+    async with p.acquire() as conn:
+        profile = await conn.fetchrow('SELECT * FROM profile LIMIT 1')
+        experience = await conn.fetch('SELECT * FROM experience ORDER BY sort_order ASC')
+        skills = await conn.fetch('SELECT * FROM skills ORDER BY category ASC, sort_order ASC')
+        projects = await conn.fetch('SELECT * FROM projects WHERE featured=TRUE ORDER BY sort_order ASC')
+        socials = await conn.fetch('SELECT * FROM socials ORDER BY sort_order ASC')
+        
+        skills_by_category = {}
+        for s in skills:
+            cat = s['category'] or 'Other'
+            if cat not in skills_by_category:
+                skills_by_category[cat] = []
+            skills_by_category[cat].append(s['name'])
+        
+        return {
+            "profile": {"name": profile['name'], "role": profile['role'], "email": profile['email'],
+                       "location": profile['location'], "bio": profile['bio']} if profile else {},
+            "experience": [{"role": e['role'], "company": e['company'], "location": e['location'],
+                          "period": e['period'], "highlights": e['highlights'] or []} for e in experience],
+            "skills": skills_by_category,
+            "projects": [{"title": p['title'], "description": p['description'], 
+                         "technologies": p['technologies'] or []} for p in projects],
+            "socials": [{"platform": s['platform'], "value": s['value']} for s in socials],
+            "generatedAt": datetime.now(timezone.utc).isoformat()
+        }
 
-# ============ Data Export/Import ============
+# ============ Data Export ============
 
 @app.get("/api/export")
 async def export_all_data():
-    """Export all portfolio data for backup/migration"""
-    data = {
-        "profile": serialize_doc(await db.profile.find_one()),
-        "projects": serialize_docs(await db.projects.find().to_list(100)),
-        "blog_posts": serialize_docs(await db.blog_posts.find().to_list(100)),
-        "experience": serialize_docs(await db.experience.find().to_list(100)),
-        "skills": serialize_docs(await db.skills.find().to_list(100)),
-        "socials": serialize_docs(await db.socials.find().to_list(100)),
-        "footer_links": serialize_docs(await db.footer_links.find().to_list(100)),
-        "linkedin_posts": serialize_docs(await db.linkedin_posts.find().to_list(100)),
-        "about_blocks": serialize_docs(await db.about_blocks.find().to_list(100)),
-        "project_sections": serialize_docs(await db.project_sections.find().to_list(100)),
-        "site_config": serialize_doc(await db.site_config.find_one()),
-        "theme_settings": serialize_doc(await db.theme_settings.find_one()),
-        "exported_at": datetime.now(timezone.utc).isoformat(),
-        "version": "1.0"
-    }
-    return data
-
-@app.post("/api/import")
-async def import_all_data(data: dict):
-    """Import portfolio data from backup"""
-    try:
-        # Clear existing data
-        collections = ["profile", "projects", "blog_posts", "experience", "skills", 
-                      "socials", "footer_links", "linkedin_posts", "about_blocks", 
-                      "project_sections", "site_config", "theme_settings"]
+    p = await get_pool()
+    async with p.acquire() as conn:
+        profile = await conn.fetchrow('SELECT * FROM profile LIMIT 1')
+        projects = await conn.fetch('SELECT * FROM projects')
+        blog_posts = await conn.fetch('SELECT * FROM blog_posts')
+        experience = await conn.fetch('SELECT * FROM experience')
+        skills = await conn.fetch('SELECT * FROM skills')
+        socials = await conn.fetch('SELECT * FROM socials')
+        linkedin_posts = await conn.fetch('SELECT * FROM linkedin_posts')
+        site_config = await conn.fetchrow('SELECT config_data FROM site_config LIMIT 1')
         
-        for collection in collections:
-            await db[collection].delete_many({})
-        
-        # Import data
-        if data.get("profile"):
-            profile = data["profile"]
-            if "id" in profile:
-                del profile["id"]
-            await db.profile.insert_one(profile)
-        
-        for collection in ["projects", "blog_posts", "experience", "skills", 
-                          "socials", "footer_links", "linkedin_posts", "about_blocks", 
-                          "project_sections"]:
-            items = data.get(collection, [])
-            if items:
-                for item in items:
-                    if "id" in item:
-                        del item["id"]
-                await db[collection].insert_many(items)
-        
-        if data.get("site_config"):
-            config = data["site_config"]
-            if "id" in config:
-                del config["id"]
-            await db.site_config.insert_one(config)
-        
-        if data.get("theme_settings"):
-            theme = data["theme_settings"]
-            if "id" in theme:
-                del theme["id"]
-            await db.theme_settings.insert_one(theme)
-        
-        return {"success": True, "message": "Data imported successfully"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Import failed: {str(e)}")
+        return {
+            "profile": dict(profile) if profile else None,
+            "projects": [dict(r) for r in projects],
+            "blog_posts": [dict(r) for r in blog_posts],
+            "experience": [dict(r) for r in experience],
+            "skills": [dict(r) for r in skills],
+            "socials": [dict(r) for r in socials],
+            "linkedin_posts": [dict(r) for r in linkedin_posts],
+            "site_config": site_config['config_data'] if site_config else SITE_CONFIG,
+            "exported_at": datetime.now(timezone.utc).isoformat()
+        }
 
 # ============ Seed Data ============
 
 @app.post("/api/seed")
 async def seed_data():
-    """Seed the database with initial portfolio data"""
+    """Seed the database with portfolio data"""
+    p = await get_pool()
+    async with p.acquire() as conn:
+        # Check if already seeded
+        existing = await conn.fetchrow('SELECT id FROM profile LIMIT 1')
+        if existing:
+            return {"message": "Database already seeded", "seeded": False}
+        
+        # Seed profile
+        await conn.execute('''
+            INSERT INTO profile (name, role, email, location, bio, years_experience, projects_shipped)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+        ''', "Mohamed Yazeed Faumy", "IT Manager / Technical Operations Lead", "2002yazeedfaumy@gmail.com",
+            "Wattala, Sri Lanka", 
+            "IT Manager / Technical Operations Lead with 5+ years of experience managing cloud infrastructure, VoIP systems, SaaS platforms, and high-availability environments.",
+            5, 50)
+        
+        # Seed projects
+        projects_data = [
+            ("Cloud Infrastructure Management", "AWS and Linux VPS environments management ensuring high availability and system stability", 
+             ["AWS", "Linux", "VPS", "Docker", "CI/CD"], "bg-blue-50", True, 1),
+            ("Backend Monitoring Systems", "Built Python-based monitoring and alert systems to detect issues and automatically optimize performance",
+             ["Python", "Prometheus", "Grafana", "APIs"], "bg-green-50", True, 2),
+            ("VoIP & Telecom Solutions", "Managed and maintained VoIP systems for enterprise communication with 100% uptime",
+             ["VoIP", "SIP", "Asterisk", "FreePBX"], "bg-purple-50", True, 3),
+            ("SaaS Platform Development", "Led multiple SaaS and web application projects from planning to production release",
+             ["React", "Node.js", "PostgreSQL", "Stripe"], "bg-orange-50", True, 4),
+        ]
+        for proj in projects_data:
+            await conn.execute('''
+                INSERT INTO projects (title, description, technologies, color, featured, sort_order)
+                VALUES ($1, $2, $3, $4, $5, $6)
+            ''', proj[0], proj[1], proj[2], proj[3], proj[4], proj[5])
+        
+        # Seed experience
+        experience_data = [
+            ("IT Project Coordinator / Technical Lead", "Port City BPO", "Sri Lanka", "January 2026 – Present",
+             ["Led decision-making across IT infrastructure", "Managed AWS and Linux VPS environments", 
+              "Built backend monitoring systems using Python", "Maintained near 100% uptime"], 1, True),
+            ("Senior IT Manager / Project Lead", "Code Studio Global", "Sri Lanka", "May 2025 – January 2026",
+             ["Led multiple SaaS and web application projects", "Defined project scope and deliverables",
+              "Coordinated developers and stakeholders"], 2, False),
+            ("IT Consultant / Project-Based Lead", "Freelance | Remote", "Remote", "January 2023 – January 2024",
+             ["Delivered ERP, CRM, and automation projects", "Managed full project lifecycle"], 3, False),
+            ("DevOps Engineer", "Sterling Carter Technology", "Kingston, Jamaica", "January 2021 – May 2023",
+             ["Performed Log File Analysis for SEO optimization", "Coded Python scripts for data cleansing",
+              "Developed CI/CD pipelines"], 4, False),
+        ]
+        for exp in experience_data:
+            await conn.execute('''
+                INSERT INTO experience (role, company, location, period, highlights, sort_order, is_current)
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
+            ''', exp[0], exp[1], exp[2], exp[3], exp[4], exp[5], exp[6])
+        
+        # Seed skills
+        skills_data = [
+            ("Team Leadership", "Management", 1), ("Project Management", "Management", 2),
+            ("AWS", "Cloud & DevOps", 1), ("Linux VPS", "Cloud & DevOps", 2), ("Docker", "Cloud & DevOps", 3),
+            ("Python", "Backend", 1), ("API Development", "Backend", 2), ("MySQL", "Backend", 3),
+            ("VoIP Systems", "Platforms", 1), ("SaaS Platforms", "Platforms", 2),
+        ]
+        for skill in skills_data:
+            await conn.execute('INSERT INTO skills (name, category, sort_order) VALUES ($1, $2, $3)', 
+                             skill[0], skill[1], skill[2])
+        
+        # Seed socials
+        socials_data = [
+            ("Email", "Email", "2002yazeedfaumy@gmail.com", "mailto:2002yazeedfaumy@gmail.com", 1),
+            ("LinkedIn", "LinkedIn", "linkedin.com/in/yazeedfaumy", "https://linkedin.com/in/yazeedfaumy", 2),
+            ("GitHub", "GitHub", "github.com/yazeedfaumy", "https://github.com/yazeedfaumy", 3),
+            ("Phone", "Phone", "+94 75 920 1455", "tel:+94759201455", 4),
+        ]
+        for social in socials_data:
+            await conn.execute('''
+                INSERT INTO socials (platform, label, value, href, sort_order) VALUES ($1, $2, $3, $4, $5)
+            ''', social[0], social[1], social[2], social[3], social[4])
+        
+        # Seed blog posts
+        blog_data = [
+            ("Building High-Availability Cloud Infrastructure", 
+             "Best practices for AWS and Linux VPS management in enterprise environments.",
+             "<p>Managing cloud infrastructure requires careful planning and monitoring.</p>",
+             ["Cloud", "AWS", "DevOps"], True),
+            ("Automating IT Operations with Python",
+             "How Python scripts can transform your IT monitoring and alert systems.",
+             "<p>Automation is key to scaling IT operations.</p>",
+             ["Python", "Automation", "IT"], True),
+        ]
+        for blog in blog_data:
+            await conn.execute('''
+                INSERT INTO blog_posts (title, excerpt, content, tags, published) VALUES ($1, $2, $3, $4, $5)
+            ''', blog[0], blog[1], blog[2], blog[3], blog[4])
+        
+        # Seed LinkedIn posts
+        linkedin_data = [
+            ("Excited to share that we achieved 99.99% uptime across all our cloud infrastructure this quarter!", "2 days ago", 78, 15),
+            ("Just wrapped up a successful SaaS platform launch with the team!", "1 week ago", 52, 12),
+        ]
+        for lp in linkedin_data:
+            await conn.execute('''
+                INSERT INTO linkedin_posts (content, post_date, likes, comments) VALUES ($1, $2, $3, $4)
+            ''', lp[0], lp[1], lp[2], lp[3])
+        
+        # Seed site config
+        await conn.execute('INSERT INTO site_config (config_data) VALUES ($1)', json.dumps(SITE_CONFIG))
+        
+        # Seed GitHub contributions
+        await sync_github_contributions()
+        
+        return {"message": "Database seeded successfully", "seeded": True}
+
+# ============ Clear and Reseed ============
+
+@app.post("/api/clear-and-seed")
+async def clear_and_seed():
+    """Clear all data and reseed"""
+    p = await get_pool()
+    async with p.acquire() as conn:
+        # Clear all tables
+        await conn.execute('TRUNCATE profile, projects, blog_posts, experience, skills, socials, footer_links, linkedin_posts, github_contributions, about_blocks, project_sections, site_config, theme_settings RESTART IDENTITY CASCADE')
     
-    # Check if already seeded
-    existing_profile = await db.profile.find_one()
-    if existing_profile:
-        return {"message": "Database already seeded", "seeded": False}
-    
-    # Seed profile
-    profile_data = {
-        "name": "Mohamed Yazeed Faumy",
-        "role": "IT Manager / Technical Operations Lead",
-        "email": "2002yazeedfaumy@gmail.com",
-        "location": "Wattala, Sri Lanka",
-        "bio": "IT Manager / Technical Operations Lead with 5+ years of experience managing cloud infrastructure, VoIP systems, SaaS platforms, and high-availability environments.",
-        "yearsExperience": 5,
-        "projectsShipped": 50
-    }
-    await db.profile.insert_one(profile_data)
-    
-    # Seed projects
-    projects = [
-        {
-            "title": "Cloud Infrastructure Management",
-            "description": "AWS and Linux VPS environments management ensuring high availability and system stability for enterprise clients",
-            "technologies": ["AWS", "Linux", "VPS", "Docker", "CI/CD"],
-            "color": "bg-blue-50",
-            "featured": True,
-            "order": 1,
-            "createdAt": datetime.now(timezone.utc).isoformat()
-        },
-        {
-            "title": "Backend Monitoring Systems",
-            "description": "Built Python-based monitoring and alert systems to detect issues and automatically optimize system performance",
-            "technologies": ["Python", "Prometheus", "Grafana", "APIs"],
-            "color": "bg-green-50",
-            "featured": True,
-            "order": 2,
-            "createdAt": datetime.now(timezone.utc).isoformat()
-        },
-        {
-            "title": "VoIP & Telecom Solutions",
-            "description": "Managed and maintained VoIP systems for enterprise communication with 100% uptime during campaigns",
-            "technologies": ["VoIP", "SIP", "Asterisk", "FreePBX"],
-            "color": "bg-purple-50",
-            "featured": True,
-            "order": 3,
-            "createdAt": datetime.now(timezone.utc).isoformat()
-        },
-        {
-            "title": "SaaS Platform Development",
-            "description": "Led multiple SaaS and web application projects from planning to production release",
-            "technologies": ["React", "Node.js", "PostgreSQL", "Stripe"],
-            "color": "bg-orange-50",
-            "featured": True,
-            "order": 4,
-            "createdAt": datetime.now(timezone.utc).isoformat()
-        },
-    ]
-    await db.projects.insert_many(projects)
-    
-    # Seed experience
-    experience = [
-        {
-            "role": "IT Project Coordinator / Technical Lead",
-            "company": "Port City BPO",
-            "location": "Sri Lanka",
-            "period": "January 2026 – Present",
-            "highlights": [
-                "Led decision-making across IT infrastructure including servers, VoIP systems, applications, and software platforms",
-                "Managed and maintained core systems on AWS and Linux VPS environments",
-                "Built backend monitoring and alert systems using Python",
-                "Designed and delivered custom internal and external applications"
-            ],
-            "order": 1,
-            "current": True,
-            "createdAt": datetime.now(timezone.utc).isoformat()
-        },
-        {
-            "role": "Senior IT Manager / Project Lead",
-            "company": "Code Studio Global",
-            "location": "Sri Lanka",
-            "period": "May 2025 – January 2026",
-            "highlights": [
-                "Led multiple SaaS and web application projects from planning to production release",
-                "Defined project scope, timelines, milestones, and deliverables",
-                "Coordinated developers, designers, and stakeholders"
-            ],
-            "order": 2,
-            "current": False,
-            "createdAt": datetime.now(timezone.utc).isoformat()
-        },
-        {
-            "role": "IT Consultant / Project-Based Lead",
-            "company": "Freelance | Remote",
-            "location": "Remote",
-            "period": "January 2023 – January 2024",
-            "highlights": [
-                "Delivered ERP, CRM, and automation projects for international clients",
-                "Managed full project lifecycle including planning, execution, testing, and handover"
-            ],
-            "order": 3,
-            "current": False,
-            "createdAt": datetime.now(timezone.utc).isoformat()
-        },
-        {
-            "role": "DevOps Engineer",
-            "company": "Sterling Carter Technology Distributors",
-            "location": "Kingston, Jamaica",
-            "period": "January 2021 – May 2023",
-            "highlights": [
-                "Performed Log File Analysis to identify crawl budget inefficiencies",
-                "Coded Python scripts for large-scale data cleansing and MySQL database optimization",
-                "Developed and maintained automated CI/CD pipelines"
-            ],
-            "order": 4,
-            "current": False,
-            "createdAt": datetime.now(timezone.utc).isoformat()
-        },
-    ]
-    await db.experience.insert_many(experience)
-    
-    # Seed skills
-    skills = [
-        {"name": "Team Leadership", "category": "Management", "order": 1},
-        {"name": "Project Management", "category": "Management", "order": 2},
-        {"name": "AWS", "category": "Cloud & DevOps", "order": 1},
-        {"name": "Linux VPS", "category": "Cloud & DevOps", "order": 2},
-        {"name": "Docker", "category": "Cloud & DevOps", "order": 3},
-        {"name": "Python", "category": "Backend", "order": 1},
-        {"name": "API Development", "category": "Backend", "order": 2},
-        {"name": "MySQL", "category": "Backend", "order": 3},
-        {"name": "VoIP Systems", "category": "Platforms", "order": 1},
-        {"name": "SaaS Platforms", "category": "Platforms", "order": 2},
-    ]
-    await db.skills.insert_many(skills)
-    
-    # Seed socials
-    socials = [
-        {"platform": "Email", "label": "Email", "value": "2002yazeedfaumy@gmail.com", "href": "mailto:2002yazeedfaumy@gmail.com", "order": 1},
-        {"platform": "LinkedIn", "label": "LinkedIn", "value": "linkedin.com/in/yazeedfaumy", "href": "https://linkedin.com/in/yazeedfaumy", "order": 2},
-        {"platform": "GitHub", "label": "GitHub", "value": "github.com/yazeedfaumy", "href": "https://github.com/yazeedfaumy", "order": 3},
-        {"platform": "Phone", "label": "Phone", "value": "+94 75 920 1455", "href": "tel:+94759201455", "order": 4},
-    ]
-    await db.socials.insert_many(socials)
-    
-    # Seed blog posts
-    blog_posts = [
-        {
-            "title": "Building High-Availability Cloud Infrastructure",
-            "excerpt": "Best practices for AWS and Linux VPS management in enterprise environments.",
-            "content": "<p>Managing cloud infrastructure requires careful planning, monitoring, and optimization.</p>",
-            "tags": ["Cloud", "AWS", "DevOps"],
-            "published": True,
-            "publishedDate": datetime.now(timezone.utc).isoformat()
-        },
-        {
-            "title": "Automating IT Operations with Python",
-            "excerpt": "How Python scripts can transform your IT monitoring and alert systems.",
-            "content": "<p>Automation is key to scaling IT operations.</p>",
-            "tags": ["Python", "Automation", "IT"],
-            "published": True,
-            "publishedDate": datetime.now(timezone.utc).isoformat()
-        },
-    ]
-    await db.blog_posts.insert_many(blog_posts)
-    
-    # Seed LinkedIn posts
-    linkedin_posts = [
-        {
-            "content": "Excited to share that we achieved 99.99% uptime across all our cloud infrastructure this quarter!",
-            "date": "2 days ago",
-            "likes": 78,
-            "comments": 15,
-            "createdAt": datetime.now(timezone.utc).isoformat()
-        },
-        {
-            "content": "Just wrapped up a successful SaaS platform launch with the team at Code Studio Global.",
-            "date": "1 week ago",
-            "likes": 52,
-            "comments": 12,
-            "createdAt": datetime.now(timezone.utc).isoformat()
-        },
-    ]
-    await db.linkedin_posts.insert_many(linkedin_posts)
-    
-    # Seed GitHub contributions
-    await sync_github_contributions()
-    
-    # Seed site config
-    await db.site_config.insert_one(SITE_CONFIG)
-    
-    return {"message": "Database seeded successfully", "seeded": True}
+    # Reseed
+    return await seed_data()
 
 # Health check
 @app.get("/api/health")
 async def health():
-    return {"status": "ok", "timestamp": datetime.now(timezone.utc).isoformat()}
+    return {"status": "ok", "timestamp": datetime.now(timezone.utc).isoformat(), "database": "postgresql"}
 
 if __name__ == "__main__":
     import uvicorn
