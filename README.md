@@ -3,7 +3,7 @@
 
 # ZEEDIE Portfolio
 
-### Creative Engineer | Full Stack Developer
+### Full-Stack Software Engineer | SaaS Product Developer
 
 ![Portfolio Preview](client/public/opengraph.jpg)
 
@@ -12,7 +12,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-black)](https://www.typescriptlang.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-black)](https://www.postgresql.org/)
 
-[Live Demo](https://your-app.replit.app) · [Report Bug](https://github.com/yourusername/portfolio/issues) · [Request Feature](https://github.com/yourusername/portfolio/issues)
+[Live Portfolio](https://zeedie.fly.dev) · [Repository](https://github.com/corey566/zeedie-)
 
 </div>
 
@@ -114,7 +114,7 @@ Express Session   - Authentication
 
 ### DevOps
 ```
-Replit            - Hosting & deployment
+Fly.io            - Hosting & deployment
 Nix               - Package management
 Drizzle Kit       - Database migrations
 esbuild           - Server bundling
@@ -358,32 +358,17 @@ POST /api/github/sync          - Sync GitHub contributions
 
 ## 🌐 Deployment
 
-### Deploy on Replit
+### Deploy on Fly.io
 
-1. **Fork or Import** this repository to Replit
+1. **Clone** this repository and configure the Fly.io application
 
-2. **Add Secrets** (Environment Variables):
-   - Go to Tools → Secrets
-   - Add `DATABASE_URL`, `ADMIN_USERNAME`, `ADMIN_PASSWORD`
+2. **Configure secrets** using `fly secrets set` for `DATABASE_URL`, `ADMIN_USERNAME`, `ADMIN_PASSWORD`, and `SESSION_SECRET`.
 
-3. **Provision Database**:
-   - Click Tools → Database
-   - PostgreSQL database will be auto-created
-   - `DATABASE_URL` is automatically set
+3. **Provision PostgreSQL** and set the resulting connection string as `DATABASE_URL`.
 
-4. **Deploy**:
-   - Click "Deploy" button
-   - Choose deployment tier
-   - Configure:
-     ```
-     Build: npm run build
-     Run: node dist/index.cjs
-     ```
+4. **Deploy** with the repository's Fly.io configuration after verifying the build and start commands.
 
-5. **Custom Domain** (Optional):
-   - Go to deployment settings
-   - Add your custom domain
-   - Configure DNS records
+5. **Custom Domain** (Optional): configure the domain and DNS records in Fly.io.
 
 ### Production Checklist
 
@@ -438,8 +423,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### Built with ❤️ by ZEEDIE
 
-**EST. 2024** · **PORTFOLIO V1**
+**EST. 2022** · **ZEEDIE PORTFOLIO**
 
-[Website](https://your-portfolio.dev) · [LinkedIn](https://linkedin.com/in/yourprofile) · [GitHub](https://github.com/yourusername)
+[Website](https://zeedie.fly.dev) · [GitHub](https://github.com/corey566)
 
 </div>
