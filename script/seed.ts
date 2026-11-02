@@ -34,9 +34,9 @@ async function seed() {
   await db.insert(experience).values([
     {
       role: "Executive SEO Specialist",
-      company: "Code City BPO",
+      company: "Port City BPO",
       location: "Sri Lanka",
-      period: "January 2026 – September 2026",
+      period: "January 2026 – August 2026",
       highlights: [
         "Worked across SEO and digital marketing responsibilities.",
         "Contributed to marketing design and website-related work.",
