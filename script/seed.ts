@@ -1,217 +1,179 @@
 import { db } from "@db";
-import { 
-  profile, 
-  projects, 
-  blogPosts, 
-  experience, 
-  skills, 
-  socials, 
+import {
+  profile,
+  projects,
+  experience,
+  skills,
+  socials,
   footerLinks,
-  linkedinPosts,
-  githubContributions
 } from "@shared/schema";
 
+/**
+ * Seeds factual portfolio content for Mohamed Yazeed Faumy.
+ *
+ * This script intentionally does not create fabricated blog posts,
+ * LinkedIn activity, GitHub contribution data, uptime figures, or project
+ * outcomes. Existing rows are left untouched by onConflictDoNothing().
+ *
+ * Review the content and confirm dates before running against production.
+ */
 async function seed() {
-  console.log("Seeding database with Mohamed Yazeed Faumy's portfolio data...");
+  console.log("Seeding ZEEDIE with verified portfolio information...");
 
-  // Seed profile with actual resume data
   await db.insert(profile).values({
     name: "Mohamed Yazeed Faumy",
-    role: "IT Manager / Technical Operations Lead",
+    role: "Full-Stack Software Engineer & Product Developer",
     email: "2002yazeedfaumy@gmail.com",
-    location: "Wattala, Sri Lanka",
-    bio: "IT Manager / Technical Operations Lead with 5+ years of experience managing cloud infrastructure, VoIP systems, SaaS platforms, and high-availability environments. Proven ability to lead cross-functional teams, manage IT and resource budgets, and make strategic decisions across servers, applications, telecom, and software ecosystems.",
-    profileImage: "/assets/stock_images/professional_develop_ccee3624.jpg",
-    yearsExperience: 5,
-    projectsShipped: 50,
+    location: "Sri Lanka",
+    bio: "A multidisciplinary software professional with experience in freelance development and software engineering, building web applications, business platforms and digital products. Works across React, Next.js, JavaScript, backend integrations, PostgreSQL, Prisma and practical deployment workflows, with additional experience in SEO, digital marketing, IT operations and technical project coordination.",
+    profileImage: null,
+    yearsExperience: 4,
+    projectsShipped: null,
   }).onConflictDoNothing();
 
-  // Seed projects based on work experience
+  await db.insert(experience).values([
+    {
+      role: "Executive SEO Specialist",
+      company: "Code City BPO",
+      location: "Sri Lanka",
+      period: "January 2026 – September 2026",
+      highlights: [
+        "Worked across SEO and digital marketing responsibilities.",
+        "Contributed to marketing design and website-related work.",
+        "Supported backend, web, mobile and application platform development.",
+        "Handled internal technical operations, including network and device maintenance.",
+        "Supervised and coordinated developers.",
+      ],
+      order: 1,
+      current: false,
+    },
+    {
+      role: "Software Engineer",
+      company: "Code Studio Global",
+      location: "Sri Lanka",
+      period: "May 2025 – January 2026",
+      highlights: [
+        "Worked as the company's only engineer during the period described.",
+        "Rebuilt the company's website.",
+        "Contributed to software and SaaS-related development work.",
+      ],
+      order: 2,
+      current: false,
+    },
+    {
+      role: "Software Engineer",
+      company: "Sterling Carter Technology Distributors",
+      location: "Remote / International",
+      period: "January 2024 – April 2025",
+      highlights: [
+        "Worked in a software engineering role.",
+        "Contributed to software development and technical delivery.",
+      ],
+      order: 3,
+      current: false,
+    },
+    {
+      role: "Freelance Software Developer",
+      company: "Independent",
+      location: "Remote",
+      period: "January 2022 – December 2023",
+      highlights: [
+        "Completed freelance work before moving into a full-time software engineering role.",
+        "Worked independently on software and web-development assignments.",
+      ],
+      order: 4,
+      current: false,
+    },
+  ]).onConflictDoNothing();
+
   await db.insert(projects).values([
     {
-      title: "Cloud Infrastructure Management",
-      description: "AWS and Linux VPS environments management ensuring high availability and system stability for enterprise clients",
-      technologies: ["AWS", "Linux", "VPS", "Docker", "CI/CD"],
-      color: "bg-blue-50",
+      title: "Afluma Commerce",
+      description: "A multi-tenant commerce platform initiative covering storefronts, tenant administration, client portals, authentication and platform-level management. Presented as product development and architecture work; production launch status should be confirmed before claiming a public release.",
+      technologies: ["React", "Node.js", "Prisma", "PostgreSQL"],
+      color: "bg-violet-50",
       featured: true,
       order: 1,
     },
     {
-      title: "Backend Monitoring Systems",
-      description: "Built Python-based monitoring and alert systems to detect issues and automatically optimize system performance",
-      technologies: ["Python", "Prometheus", "Grafana", "APIs"],
-      color: "bg-green-50",
+      title: "GNConnect",
+      description: "A modernisation project for a legacy community records system, planned around structured household and resident data, multilingual workflows and an isolated development database.",
+      technologies: ["Next.js", "PostgreSQL", "Prisma", "Tailwind CSS", "Docker"],
+      color: "bg-blue-50",
       featured: true,
       order: 2,
     },
     {
-      title: "VoIP & Telecom Solutions",
-      description: "Managed and maintained VoIP systems for enterprise communication with 100% uptime during campaigns",
-      technologies: ["VoIP", "SIP", "Asterisk", "FreePBX"],
-      color: "bg-purple-50",
+      title: "Commander OS",
+      description: "A local-first desktop application project exploring a unified workspace, voice and chat interactions, and agent-oriented orchestration.",
+      technologies: ["Tauri", "Vite", "JavaScript"],
+      color: "bg-slate-50",
       featured: true,
       order: 3,
     },
     {
-      title: "SaaS Platform Development",
-      description: "Led multiple SaaS and web application projects from planning to production release",
-      technologies: ["React", "Node.js", "PostgreSQL", "Stripe"],
-      color: "bg-orange-50",
+      title: "Travel Lanka",
+      description: "A tourism-platform tender and product-planning initiative covering visitor services, travel integrations, supplier workflows, delivery planning and quality assurance.",
+      technologies: ["Product Architecture", "API Research", "Project Planning", "QA Planning"],
+      color: "bg-emerald-50",
       featured: true,
       order: 4,
     },
     {
-      title: "ERP & CRM Systems",
-      description: "Delivered ERP, CRM, and automation projects for international clients including Sterling Carter Technology",
-      technologies: ["Laravel", "Python", "MySQL", "APIs"],
-      color: "bg-pink-50",
+      title: "Ink Paradise",
+      description: "An e-commerce redesign initiative for printer supplies, including product categorisation, business quotation workflows and an ink-coverage estimation feature.",
+      technologies: ["React", "E-commerce", "UX Planning"],
+      color: "bg-orange-50",
       featured: false,
       order: 5,
     },
     {
-      title: "Live Streaming Infrastructure",
-      description: "Maintained near 100% uptime across live streaming platforms during high-traffic campaigns",
-      technologies: ["OBS", "RTMP", "CDN", "Load Balancing"],
-      color: "bg-cyan-50",
+      title: "Luckgem",
+      description: "A jewellery storefront initiative focused on product presentation, diamond and gemstone information, social links and administrative content management.",
+      technologies: ["React", "E-commerce", "Web Development"],
+      color: "bg-rose-50",
       featured: false,
       order: 6,
     },
   ]).onConflictDoNothing();
 
-  // Seed blog posts
-  await db.insert(blogPosts).values([
-    {
-      title: "Building High-Availability Cloud Infrastructure",
-      excerpt: "Best practices for AWS and Linux VPS management in enterprise environments.",
-      content: "<p>Managing cloud infrastructure requires careful planning, monitoring, and optimization. In this post, I share key strategies for maintaining 99.99% uptime across your systems.</p><h3>Key Strategies</h3><ul><li>Implement redundant systems across availability zones</li><li>Use automated health checks and failover</li><li>Monitor with Prometheus and Grafana</li><li>Regular capacity planning and load testing</li></ul>",
-      tags: ["Cloud", "AWS", "DevOps"],
-      published: true,
-    },
-    {
-      title: "Automating IT Operations with Python",
-      excerpt: "How Python scripts can transform your IT monitoring and alert systems.",
-      content: "<p>Automation is key to scaling IT operations. This guide covers building monitoring systems that detect issues before they impact users.</p><h3>Topics Covered</h3><ul><li>Real-time log analysis</li><li>Automated alerting via Slack/Email</li><li>Self-healing infrastructure scripts</li><li>Performance optimization triggers</li></ul>",
-      tags: ["Python", "Automation", "IT"],
-      published: true,
-    },
-    {
-      title: "Managing Cross-Cultural Tech Teams",
-      excerpt: "Lessons learned from leading teams across China, India, and Gulf regions.",
-      content: "<p>Working with multicultural teams presents unique challenges and opportunities. Here's what I've learned about effective communication and project delivery.</p>",
-      tags: ["Leadership", "Management", "Teams"],
-      published: true,
-    },
-    {
-      title: "SEO Technical Optimization Guide",
-      excerpt: "Log file analysis and crawl budget optimization for better search rankings.",
-      content: "<p>Technical SEO requires understanding how search engines crawl your site. This guide covers log analysis and optimization techniques.</p>",
-      tags: ["SEO", "Technical", "Analytics"],
-      published: true,
-    },
-    {
-      title: "VoIP Systems for Enterprise",
-      excerpt: "Implementing and maintaining enterprise communication systems.",
-      content: "<p>VoIP systems are the backbone of modern enterprise communication. Learn about setup, maintenance, and troubleshooting.</p>",
-      tags: ["VoIP", "Enterprise", "Communication"],
-      published: true,
-    },
-  ]).onConflictDoNothing();
-
-  // Seed experience from actual resume
-  await db.insert(experience).values([
-    {
-      role: "IT Project Coordinator / Technical Lead",
-      company: "Port City BPO",
-      location: "Sri Lanka",
-      period: "January 2026 – Present",
-      highlights: [
-        "Led decision-making across IT infrastructure including servers, VoIP systems, applications, and software platforms",
-        "Managed and maintained core systems on AWS and Linux VPS environments, ensuring high availability and system stability",
-        "Built backend monitoring and alert systems using Python to detect issues and automatically optimize system performance",
-        "Designed and delivered custom internal and external applications, including API integrations based on business requirements",
-        "Managed IT and resource budgets, optimizing infrastructure costs and improving operational efficiency",
-        "Worked with multicultural teams (China, India, Gulf regions) to deliver projects on time and maintain performance standards",
-        "Maintained near 100% uptime across platforms, including live streaming systems during high-traffic campaigns",
-      ],
-      order: 1,
-      current: true,
-    },
-    {
-      role: "Senior IT Manager / Project Lead",
-      company: "Code Studio Global",
-      location: "Sri Lanka",
-      period: "May 2025 – January 2026",
-      highlights: [
-        "Led multiple SaaS and web application projects from planning to production release",
-        "Defined project scope, timelines, milestones, and deliverables",
-        "Coordinated developers, designers, and stakeholders to ensure smooth execution",
-        "Managed risks, change requests, and quality assurance processes",
-        "Ensured projects were delivered on time and met business requirements",
-      ],
-      order: 2,
-      current: false,
-    },
-    {
-      role: "IT Consultant / Project-Based Lead",
-      company: "Freelance | Remote",
-      location: "Remote",
-      period: "January 2023 – January 2024",
-      highlights: [
-        "Delivered ERP, CRM, and automation projects for international clients",
-        "Managed full project lifecycle including planning, execution, testing, and handover",
-        "Communicated directly with clients to manage expectations and timelines",
-        "Key client: Sterling Carter Technology, Kingston, Jamaica",
-      ],
-      order: 3,
-      current: false,
-    },
-    {
-      role: "DevOps Engineer",
-      company: "Sterling Carter Technology Distributors",
-      location: "Kingston, Jamaica",
-      period: "January 2021 – May 2023",
-      highlights: [
-        "Performed Log File Analysis to identify crawl budget inefficiencies and optimize server response times across WordPress infrastructures",
-        "Identified security vulnerabilities and strengthened API endpoints for real-time inventory integrations",
-        "Coded Python scripts for large-scale data cleansing and MySQL database optimization",
-        "Developed and maintained automated CI/CD pipelines to ensure seamless deployment of technical SEO enhancements",
-      ],
-      order: 4,
-      current: false,
-    },
-  ]).onConflictDoNothing();
-
-  // Seed skills from resume
   await db.insert(skills).values([
-    // Leadership & Management
-    { name: "Team Leadership", category: "Management", order: 1 },
-    { name: "Project Management", category: "Management", order: 2 },
-    { name: "Stakeholder Management", category: "Management", order: 3 },
-    { name: "Risk & Change Management", category: "Management", order: 4 },
-    { name: "Resource Planning", category: "Management", order: 5 },
-    { name: "Budgeting", category: "Management", order: 6 },
-    // Technical
-    { name: "AWS", category: "Cloud & DevOps", order: 1 },
-    { name: "Linux VPS", category: "Cloud & DevOps", order: 2 },
-    { name: "CI/CD Pipelines", category: "Cloud & DevOps", order: 3 },
-    { name: "Docker", category: "Cloud & DevOps", order: 4 },
-    // Backend
-    { name: "Python", category: "Backend", order: 1 },
-    { name: "API Development", category: "Backend", order: 2 },
-    { name: "MySQL", category: "Backend", order: 3 },
-    { name: "PostgreSQL", category: "Backend", order: 4 },
-    // Methodologies
-    { name: "Agile", category: "Methodologies", order: 1 },
-    { name: "Waterfall", category: "Methodologies", order: 2 },
-    { name: "Scrum", category: "Methodologies", order: 3 },
-    // SaaS & Platforms
-    { name: "VoIP Systems", category: "Platforms", order: 1 },
-    { name: "SaaS Platforms", category: "Platforms", order: 2 },
-    { name: "CRM Development", category: "Platforms", order: 3 },
-    { name: "ERP Systems", category: "Platforms", order: 4 },
+    { name: "React", category: "Frontend", order: 1 },
+    { name: "Next.js", category: "Frontend", order: 2 },
+    { name: "JavaScript", category: "Frontend", order: 3 },
+    { name: "TypeScript", category: "Frontend", order: 4 },
+    { name: "HTML5", category: "Frontend", order: 5 },
+    { name: "CSS3", category: "Frontend", order: 6 },
+    { name: "Tailwind CSS", category: "Frontend", order: 7 },
+    { name: "Vite", category: "Frontend", order: 8 },
+    { name: "Node.js", category: "Backend", order: 1 },
+    { name: "Express.js", category: "Backend", order: 2 },
+    { name: "Strapi", category: "Backend", order: 3 },
+    { name: "PHP", category: "Backend", order: 4 },
+    { name: "Python (data processing)", category: "Backend", order: 5 },
+    { name: "REST API integration", category: "Backend", order: 6 },
+    { name: "PostgreSQL", category: "Databases", order: 1 },
+    { name: "Prisma ORM", category: "Databases", order: 2 },
+    { name: "SQL", category: "Databases", order: 3 },
+    { name: "Database modelling", category: "Databases", order: 4 },
+    { name: "Docker", category: "Infrastructure", order: 1 },
+    { name: "Docker Compose", category: "Infrastructure", order: 2 },
+    { name: "Linux server operations", category: "Infrastructure", order: 3 },
+    { name: "Cloudflare and DNS", category: "Infrastructure", order: 4 },
+    { name: "Git and GitHub", category: "Tools", order: 1 },
+    { name: "Technical SEO", category: "SEO & Digital Growth", order: 1 },
+    { name: "Google Search Console", category: "SEO & Digital Growth", order: 2 },
+    { name: "Website optimisation", category: "SEO & Digital Growth", order: 3 },
+    { name: "Digital marketing", category: "SEO & Digital Growth", order: 4 },
+    { name: "Requirements analysis", category: "Product & Delivery", order: 1 },
+    { name: "Technical project planning", category: "Product & Delivery", order: 2 },
+    { name: "Developer coordination", category: "Product & Delivery", order: 3 },
+    { name: "Quality assurance planning", category: "Product & Delivery", order: 4 },
+    { name: "IT troubleshooting", category: "IT Operations", order: 1 },
+    { name: "Device and network support", category: "IT Operations", order: 2 },
+    { name: "Email and DNS troubleshooting", category: "IT Operations", order: 3 },
   ]).onConflictDoNothing();
 
-  // Seed socials
   await db.insert(socials).values([
     {
       platform: "Email",
@@ -221,68 +183,23 @@ async function seed() {
       order: 1,
     },
     {
-      platform: "LinkedIn",
-      label: "LinkedIn",
-      value: "linkedin.com/in/yazeedfaumy",
-      href: "https://linkedin.com/in/yazeedfaumy",
-      order: 2,
-    },
-    {
       platform: "GitHub",
       label: "GitHub",
-      value: "github.com/yazeedfaumy",
-      href: "https://github.com/yazeedfaumy",
-      order: 3,
-    },
-    {
-      platform: "Phone",
-      label: "Phone",
-      value: "+94 75 920 1455",
-      href: "tel:+94759201455",
-      order: 4,
+      value: "github.com/corey566",
+      href: "https://github.com/corey566",
+      order: 2,
     },
   ]).onConflictDoNothing();
 
-  // Seed footer links
   await db.insert(footerLinks).values([
-    { label: "LinkedIn", href: "https://linkedin.com/in/yazeedfaumy", order: 1 },
-    { label: "GitHub", href: "https://github.com/yazeedfaumy", order: 2 },
-    { label: "Email", href: "mailto:2002yazeedfaumy@gmail.com", order: 3 },
+    { label: "GitHub", href: "https://github.com/corey566", order: 1 },
+    { label: "Email", href: "mailto:2002yazeedfaumy@gmail.com", order: 2 },
   ]).onConflictDoNothing();
 
-  // Seed LinkedIn posts
-  await db.insert(linkedinPosts).values([
-    {
-      content: "Excited to share that we achieved 99.99% uptime across all our cloud infrastructure this quarter! Proper monitoring and automation make all the difference.",
-      date: "2 days ago",
-      likes: 78,
-      comments: 15,
-    },
-    {
-      content: "Just wrapped up a successful SaaS platform launch with the team at Code Studio Global. From planning to production in record time!",
-      date: "1 week ago",
-      likes: 52,
-      comments: 12,
-    },
-  ]).onConflictDoNothing();
-
-  // Seed mock GitHub contributions (last 180 days)
-  const today = new Date();
-  const contributions = Array.from({ length: 180 }).map((_, i) => {
-    const date = new Date(today);
-    date.setDate(date.getDate() - (179 - i));
-    const count = Math.random() > 0.6 ? Math.floor(Math.random() * 8) : 0;
-    const level = count > 0 ? Math.min(Math.floor(count / 2) + 1, 4) : 0;
-    return {
-      date: date.toISOString().split('T')[0],
-      count,
-      level,
-    };
-  });
-
-  await db.insert(githubContributions).values(contributions).onConflictDoNothing();
-
-  console.log("Database seeded successfully with Mohamed Yazeed Faumy's portfolio data!");
+  console.log("ZEEDIE portfolio content seeded. Add education and verified media through the admin panel when confirmed.");
 }
 
-seed().catch(console.error).finally(() => process.exit());
+seed().catch((error) => {
+  console.error("Portfolio seed failed:", error);
+  process.exitCode = 1;
+}).finally(() => process.exit());
