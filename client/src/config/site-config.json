@@ -1,15 +1,15 @@
 {
   "hero": {
-    "title": "TECH",
-    "subtitle": "LEADER",
-    "description": "IT Manager / Technical Operations Lead",
-    "established": "EST. 2021",
-    "version": "PORTFOLIO V2"
+    "title": "SOFTWARE",
+    "subtitle": "ENGINEER",
+    "description": "Full-Stack Software Engineer · SaaS Product Developer",
+    "established": "EST. 2022",
+    "version": "ZEEDIE · PORTFOLIO"
   },
   "seo": {
-    "title": "Mohamed Yazeed Faumy | IT Manager & Technical Lead",
-    "description": "Portfolio of Mohamed Yazeed Faumy - IT Manager / Technical Operations Lead with 5+ years of experience in cloud infrastructure, VoIP systems, and SaaS platforms.",
-    "keywords": "IT Manager, Technical Lead, Cloud Infrastructure, AWS, DevOps, VoIP, SaaS, Project Management, Python, API Development",
+    "title": "Mohamed Yazeed Faumy | Full-Stack Software Engineer",
+    "description": "Portfolio of Mohamed Yazeed Faumy — full-stack software engineer and product developer working across React, Next.js, backend integrations, PostgreSQL, SaaS platforms and digital products.",
+    "keywords": "Mohamed Yazeed Faumy, Full-Stack Software Engineer, React, Next.js, JavaScript, Node.js, PostgreSQL, Prisma, SaaS, Software Developer, Product Engineer",
     "author": "Mohamed Yazeed Faumy",
     "ogImage": "/opengraph.jpg"
   }
